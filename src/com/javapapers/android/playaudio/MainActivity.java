@@ -21,6 +21,7 @@ public class MainActivity extends Activity {
     }
     
     public void playAudio(View view) {
+    	
 	    Intent objIntent = new Intent(this, PlayAudio.class);
 	    startService(objIntent);
     }

@@ -25,4 +25,17 @@
         android:onClick="stopAudio"
         android:text="Stop" />
 
+    <ToggleButton
+        android:id="@+id/toggleButton1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/button2"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="41dp"
+        
+        android:minWidth="80dp"
+        android:text="ToggleButton"
+        android:textOff="Play"
+        android:textOn="Pause" />
+
 </RelativeLayout>
