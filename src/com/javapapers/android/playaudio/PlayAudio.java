@@ -23,8 +23,8 @@ public class PlayAudio extends Service{
 	    Log.d(LOGCAT, "Service Started!");
 	    
 	    soundPool = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
-	    sound1 = soundPool.load(getBaseContext(), R.raw.snd_stage_clear, 1);
-	    sound2 = soundPool.load(getBaseContext(), R.raw.snd_game_over, 1);
+	    //sound1 = soundPool.load(getBaseContext(), R.raw.snd_stage_clear, 1);
+	    //sound2 = soundPool.load(getBaseContext(), R.raw.snd_game_over, 1);
 	}
 	
 
