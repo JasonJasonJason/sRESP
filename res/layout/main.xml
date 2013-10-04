@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <TextView
+        android:id="@+id/RespirationRate"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ButtonConnect"
+        android:text="Respiration Rate"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/StatusTextBox"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/labelRespRate"
+        android:text="Status Message"
+        android:textSize="20sp" />
+
+    <EditText
+        android:id="@+id/labelRespRate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/RespirationRate"
+        android:layout_centerHorizontal="true"
+        android:ems="10"
+        android:text="000" >
+
+        <requestFocus />
+    </EditText>
+
+    <EditText
+        android:id="@+id/labelStatusMsg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/StatusTextBox"
+        android:layout_centerHorizontal="true"
+        android:ems="10"
+        android:text="Status Message Box" />
+
+    <ToggleButton
+        android:id="@+id/ToggleButton02"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="63dp"
+        android:layout_marginRight="20dp"
+        android:minWidth="80dp"
+        android:onClick="toggle2"
+        android:text="ToggleButton"
+        android:textOff="Play"
+        android:textOn="Pause" />
+
+    <ToggleButton
+        android:id="@+id/ToggleButton01"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/ToggleButton02"
+        android:layout_alignBottom="@+id/ToggleButton02"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="18dp"
+        android:minWidth="80dp"
+        android:onClick="toggle3"
+        android:text="ToggleButton"
+        android:textOff="Play"
+        android:textOn="Pause" />
+
+    <ToggleButton
+        android:id="@+id/toggleButton1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/ToggleButton02"
+        android:layout_alignBottom="@+id/ToggleButton02"
+        android:layout_centerHorizontal="true"
+        android:minWidth="80dp"
+        android:onClick="toggle1"
+        android:text="ToggleButton"
+        android:textOff="Play"
+        android:textOn="Pause" />
+
+    <Button
+        android:id="@+id/ButtonDisconnect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignRight="@+id/labelRespRate"
+        android:text="Disconnect" />
+
+    <Button
+        android:id="@+id/ButtonConnect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/labelRespRate"
+        android:layout_alignParentTop="true"
+        android:text="Connect" />
+
+</RelativeLayout>
