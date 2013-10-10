@@ -51,9 +51,10 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        /*Sending a message to android that we are going to initiate a pairing request*/
+        
+        //Sending a message to android that we are going to initiate a pairing request
         IntentFilter filter = new IntentFilter("android.bluetooth.device.action.PAIRING_REQUEST");
-        /*Registering a new BTBroadcast receiver from the Main Activity context with pairing request event*/
+        //Registering a new BTBroadcast receiver from the Main Activity context with pairing request event
        this.getApplicationContext().registerReceiver(new BTBroadcastReceiver(), filter);
         // Registering the BTBondReceiver in the application that the status of the receiver has changed to Paired
         IntentFilter filter2 = new IntentFilter("android.bluetooth.device.action.BOND_STATE_CHANGED");
@@ -120,23 +121,23 @@ public class MainActivity extends Activity {
         		}
         	});
         }
-        /*Obtaining the handle to act on the DISCONNECT button*/
+        //Obtaining the handle to act on the DISCONNECT button
         Button btnDisconnect = (Button) findViewById(R.id.ButtonDisconnect);
         if (btnDisconnect != null)
         {
         	btnDisconnect.setOnClickListener(new OnClickListener() {
 				@Override
-				/*Functionality to act if the button DISCONNECT is touched*/
+				//Functionality to act if the button DISCONNECT is touched
 				public void onClick(View v) {
 					// TODO Auto-generated method stub
-					/*Reset the global variables*/
+					//Reset the global variables
 					TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
     				String ErrorText  = "Disconnected from BioHarness!";
 					 tv.setText(ErrorText);
 
-					/*This disconnects listener from acting on received messages*/	
+					//This disconnects listener from acting on received messages	
 					_bt.removeConnectedEventListener(_NConnListener);
-					/*Close the communication with the device & throw an exception if failure*/
+					//Close the communication with the device & throw an exception if failure
 					_bt.Close();
 				
 				}
@@ -145,6 +146,13 @@ public class MainActivity extends Activity {
         
         //Initializing Sounds
         initSounds();
+
+    }
+    
+    public void goToGraph(View view)
+    {
+    		Intent intent = new Intent(this, GraphActivity.class);
+        startActivity(intent);
     }
     
     private void initSounds(){
