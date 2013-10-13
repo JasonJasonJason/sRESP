@@ -12,6 +12,7 @@ import java.util.Set;
 
 //import com.NewApp.android.R;
 
+
 import android.R.*;
 import android.app.Activity;
 import android.bluetooth.*;
@@ -26,6 +27,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import zephyr.android.BioHarnessBT.*;
 
 public class MainActivity extends Activity {
@@ -44,12 +46,13 @@ public class MainActivity extends Activity {
 	int[] streamIds;
 	int[] soundIds;
 	
-	
+	 
 	
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("Application", "onCreate");
         setContentView(R.layout.main);
         
         //Sending a message to android that we are going to initiate a pairing request
@@ -80,16 +83,13 @@ public class MainActivity extends Activity {
         			{
                         for (BluetoothDevice device : pairedDevices) 
                         {
-                        	if (device.getName().startsWith("BH")) 
-                        	{
-                        		BluetoothDevice btDevice = device;
-                        		BhMacID = btDevice.getAddress();
-                                break;
-
-                        	}
-                        }
-                        
-                        
+	                        	if (device.getName().startsWith("BH")) 
+	                        	{
+	                        		BluetoothDevice btDevice = device;
+	                        		BhMacID = btDevice.getAddress();
+	                                break;
+	                        	}
+                        }                        
         			}
         			
         			//BhMacID = btDevice.getAddress();
@@ -108,9 +108,6 @@ public class MainActivity extends Activity {
         				TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
         				String ErrorText  = "Connected to BioHarness "+DeviceName;
 						 tv.setText(ErrorText);
-						 
-						 //Reset all the values to 0s
-
         			}
         			else
         			{
@@ -139,20 +136,56 @@ public class MainActivity extends Activity {
 					_bt.removeConnectedEventListener(_NConnListener);
 					//Close the communication with the device & throw an exception if failure
 					_bt.Close();
-				
 				}
         	});
         }
         
         //Initializing Sounds
         initSounds();
-
+        
+        //Initializing SeekBars
+        initSeekBars();
+    }
+    
+    @Override
+    public void onPause(){
+    		super.onPause();
+    		Log.d("Application", "onPause");
+    		for(int i=0; i<soundIds.length; i++){
+    			songsPlaying[i] = false;
+    			soundPool.stop(streamIds[i]);
+    		}
     }
     
     public void goToGraph(View view)
     {
     		Intent intent = new Intent(this, GraphActivity.class);
         startActivity(intent);
+    }
+    
+    private void initSeekBars(){
+    	
+    		SeekBar[] seekBars = new SeekBar[3];
+    		seekBars[0] = ((SeekBar) findViewById(R.id.seekBar1));
+    		seekBars[1] = ((SeekBar) findViewById(R.id.seekBar2));
+    		seekBars[2] = ((SeekBar) findViewById(R.id.seekBar3));
+    		
+    		initSeekBar(seekBars[0], 0);
+    		initSeekBar(seekBars[1], 1);
+    		initSeekBar(seekBars[2], 2);
+    }
+    
+    private void initSeekBar(SeekBar seekBar, final int index)
+    {
+    			seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener(){
+            @Override
+            public void onProgressChanged(SeekBar arg0, int seekPercentage, boolean arg2) {
+            		float volume = (float)seekPercentage/100;
+            		soundPool.setVolume(soundIds[index], volume, volume);
+            }
+			@Override public void onStartTrackingTouch(SeekBar seekBar) {	}
+			@Override public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
     }
     
     private void initSounds(){
@@ -196,16 +229,16 @@ public class MainActivity extends Activity {
     }
     
     private void toggle(int songNumber){
-    	
-    	if(!songsPlaying[songNumber])
-    	{
-    		streamIds[songNumber] = soundPool.play(soundIds[songNumber], 1, 1, 1, 0, 1);
-    		songsPlaying[songNumber] = true;
-    	}
-    	else {
-    		soundPool.stop(streamIds[songNumber]);
-    		songsPlaying[songNumber] = false;    
-    	}
+	    	
+	    	if(!songsPlaying[songNumber])
+	    	{
+	    		streamIds[songNumber] = soundPool.play(soundIds[songNumber], 1, 1, 1, 0, 1);
+	    		songsPlaying[songNumber] = true;
+	    	}
+	    	else {
+	    		soundPool.stop(streamIds[songNumber]);
+	    		songsPlaying[songNumber] = false;    
+	    	}
     }
     
     
