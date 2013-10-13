@@ -26,39 +26,37 @@ public class GraphActivity extends Activity {
                                  WindowManager.LayoutParams.FLAG_SECURE);
  
         setContentView(R.layout.graph);
+        
  
         // initialize our XYPlot reference:
         plot = (XYPlot) findViewById(R.id.mySimpleXYPlot);
- 
+        plot.setRangeBoundaries(-6,  6, BoundaryMode.FIXED);
         // Create a couple arrays of y-values to plot:
-        Number[] series1Numbers = {1, 8, 5, 2, 7, 12};
-        Number[] series2Numbers = {4, 6, 3, 8, 2, 10};
+        Number[] series1Numbers = {-3.8, -3.3, -1.5, 0.4, 2, 3.3, 3.8, 3.3, 2, 0.4, -1.5, -3.3,
+        		-3.8, -3.3, -1.5, 0.4, 2, 3.3, 3.8, 3.3, 2, 0.4, -1.5, -3.3,
+        		-3.8, -3.3, -1.5, 0.4, 2, 3.3, 3.8, 3.3, 2, 0.4, -1.5, -3.3};
  
         // Turn the above arrays into XYSeries':
         XYSeries series1 = new SimpleXYSeries(
-                Arrays.asList(series1Numbers),          // SimpleXYSeries takes a List so turn our array into a List
+                Arrays.asList(series1Numbers),
                 SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, // Y_VALS_ONLY means use the element index as the x value
-                "Series1");                             // Set the display title of the series
+                "John Doe");
  
-        // same as above
-        XYSeries series2 = new SimpleXYSeries(Arrays.asList(series2Numbers), SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, "Series2");
  
         // Create a formatter to use for drawing a series using LineAndPointRenderer
         // and configure it from xml:
         LineAndPointFormatter series1Format = new LineAndPointFormatter();
-        series1Format.setPointLabelFormatter(new PointLabelFormatter());
+        
+        PointLabelFormatter labelFormat = new PointLabelFormatter();
+        labelFormat.vOffset = 1000;
+        
+        
+        series1Format.setPointLabelFormatter(labelFormat);
         series1Format.configure(getApplicationContext(),
                 R.xml.line_point_formatter_with_plf1);
  
         // add a new series' to the xyplot:
         plot.addSeries(series1, series1Format);
- 
-        // same as above:
-        LineAndPointFormatter series2Format = new LineAndPointFormatter();
-        series2Format.setPointLabelFormatter(new PointLabelFormatter());
-        series2Format.configure(getApplicationContext(),
-                R.xml.line_point_formatter_with_plf2);
-        plot.addSeries(series2, series2Format);
  
         // reduce the number of range labels
         plot.setTicksPerRangeLabel(3);
