@@ -65,7 +65,7 @@ public class MainActivity extends Activity {
         
       //Obtaining the handle to act on the CONNECT button
         TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
-		String ErrorText  = "Not Connected to BioHarness !";
+		String ErrorText  = "Failed to connect!";
 		 tv.setText(ErrorText);
 
         Button btnConnect = (Button) findViewById(R.id.ButtonConnect);
