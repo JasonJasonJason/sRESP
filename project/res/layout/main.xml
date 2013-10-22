@@ -140,10 +140,19 @@
         android:id="@+id/button1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/labelStatusMsg"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
         android:onClick="goToGraph"
         android:text="Respiration Signal Graph" />
+
+    <EditText
+        android:id="@+id/editText1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/button1"
+        android:layout_alignBottom="@+id/button1"
+        android:layout_alignRight="@+id/toggleButton1"
+        android:ems="10"
+        android:inputType="number" />
 
 </RelativeLayout>
