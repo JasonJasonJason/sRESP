@@ -1,6 +1,7 @@
 package com.NewApp;
 
 import android.app.Activity;
+import android.widget.Spinner;
 import android.media.SoundPool;
 import android.media.AudioManager;
 import android.media.SoundPool.OnLoadCompleteListener;
@@ -46,14 +47,24 @@ public class MainActivity extends Activity {
 	int[] streamIds;
 	int[] soundIds;
 	
-	 
+	public Spinner spinnerTrack;
 	
+	//@Override
+    //public void onCreate1(Bundle savedInstanceState) {
+      //  super.onCreate1(savedInstanceState);
+        //Log.d("Application", "onCreate");
+        //setContentView(R.layout.main_menu);
+        
+       // spinnerTrack = (Spinner)findViewById(R.id.spinner1);
+	//}
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("Application", "onCreate");
+        Log.d("Application", "onCreate");   
+        
         setContentView(R.layout.main);
+        spinnerTrack = (Spinner)findViewById(R.id.spinner1);
         
         //Sending a message to android that we are going to initiate a pairing request
         IntentFilter filter = new IntentFilter("android.bluetooth.device.action.PAIRING_REQUEST");
