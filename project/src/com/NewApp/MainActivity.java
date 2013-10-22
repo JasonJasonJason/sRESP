@@ -13,6 +13,7 @@ import java.util.Set;
 //import com.NewApp.android.R;
 
 
+
 import android.R.*;
 import android.app.Activity;
 import android.bluetooth.*;
@@ -27,6 +28,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import zephyr.android.BioHarnessBT.*;
 
@@ -45,7 +48,7 @@ public class MainActivity extends Activity {
 	boolean[] songsPlaying;
 	int[] streamIds;
 	int[] soundIds;
-	
+	BioHarnessController bhController;
 	 
 	
 	
@@ -145,6 +148,25 @@ public class MainActivity extends Activity {
         
         //Initializing SeekBars
         initSeekBars();
+        
+        //Initializing BioHarnessController
+        bhController = new BioHarnessController();
+        
+        EditText textMessage = (EditText)findViewById(R.id.editText1);
+        textMessage.addTextChangedListener(new TextWatcher(){
+        		@Override
+            public void afterTextChanged(Editable s) {
+        			try{
+        				handleNewRespirationRate(Float.parseFloat(s.toString()));
+        			}
+        			catch(Exception e)
+        			{
+        				Log.e("EditText", "Unparseable float: " + s.toString());
+        			}
+            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after){}
+            public void onTextChanged(CharSequence s, int start, int before, int count){}
+        }); 
     }
     
     @Override
@@ -201,9 +223,9 @@ public class MainActivity extends Activity {
     	
     	soundPool = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
     	
-    	soundIds[0] = soundPool.load(getBaseContext(), R.raw.song1, 1);
-	    soundIds[1] = soundPool.load(getBaseContext(), R.raw.song2, 1);
-	    soundIds[2] = soundPool.load(getBaseContext(), R.raw.song3, 1);
+    	soundIds[0] = soundPool.load(getBaseContext(), R.raw.bass, 1);
+	    soundIds[1] = soundPool.load(getBaseContext(), R.raw.drumz, 1);
+	    soundIds[2] = soundPool.load(getBaseContext(), R.raw.synth, 1);
 	    soundPool.setOnLoadCompleteListener(new OnLoadCompleteListener() {
 	        public void onLoadComplete(SoundPool soundPool, int sampleId,int status) {
 	        	onSoundsLoadComplete(sampleId);
@@ -239,6 +261,81 @@ public class MainActivity extends Activity {
 	    		soundPool.stop(streamIds[songNumber]);
 	    		songsPlaying[songNumber] = false;    
 	    	}
+    }
+    
+    
+    private void startChannel(int channel)
+    {
+		streamIds[channel] = soundPool.play(soundIds[channel], 1, 1, 1, 0, 1);
+    }
+    
+    
+    private void stopChannel(int channel)
+    {
+    		soundPool.stop(streamIds[channel]);
+    }
+    
+    
+    private void playChannels(int[] channels){
+    	
+    		for(int channel=0; channel<streamIds.length; channel++)
+    		{
+    			stopChannel(channel);
+    		}
+    	
+    		for(int channel : channels)
+    		{
+    			startChannel(channel);
+    		}
+    		
+    }
+    
+    
+    private void adjustAudio()
+    {
+    		int respirationRate = (int) Math.floor(bhController.getRespirationRate());
+    		switch(respirationRate)
+    		{
+    			case 0:
+    			case 1:
+    			case 2:	
+    				playChannels( new int[] {0} );
+    				break;
+    			case 3:
+    			case 4:
+    				playChannels( new int[] {0,2});
+    				break;
+    			case 5:
+    			case 6:
+    			case 7:
+    				playChannels( new int[] {0,1,2});
+    				break;
+    			case 8:
+    			case 9:
+    			case 10:
+    			case 11:
+    				playChannels( new int[] {0,2});
+    				break;
+    			case 12:
+    			case 13:
+    			case 14:
+    			case 15:
+    			default:
+    				playChannels( new int[] {0});
+    				break;
+    		}
+    }
+    
+    
+    private void handleNewRespirationRate(float respirationRate)
+    {
+    		float previousRespirationRate = bhController.getRespirationRate();
+    		bhController.setRespirationRate(respirationRate);
+    		
+    		if(Math.floor(previousRespirationRate) != Math.floor(respirationRate))
+    		{
+    			adjustAudio();
+    		}
     }
     
     
@@ -292,6 +389,14 @@ public class MainActivity extends Activity {
     		{
     		case RESPIRATION_RATE:
     			String RespirationRatetext = msg.getData().getString("RespirationRate");
+	    		try{
+	    			float respirationRate = Float.parseFloat(RespirationRatetext);
+	    			handleNewRespirationRate(respirationRate);
+    			}
+			catch(Exception e)
+			{
+				Log.e("BioHarness Handler", "Unparseable float: " + RespirationRatetext);
+			}
     			tv = (EditText)findViewById(R.id.labelRespRate);
     			if (tv != null)tv.setText(RespirationRatetext);    		
     			break;    		

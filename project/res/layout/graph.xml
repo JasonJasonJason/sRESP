@@ -7,7 +7,7 @@
             android:id="@+id/mySimpleXYPlot"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            androidPlot.title="Respiration Rate"
+            androidPlot.title="Respiration Signal"
             androidPlot.domainLabel="Time (seconds)"
             androidPlot.rangeLabel="Respiration Signal"
             androidPlot.titleWidget.labelPaint.textSize="@dimen/title_font_size"
