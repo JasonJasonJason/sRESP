@@ -5,6 +5,7 @@ import android.widget.Spinner;
 import android.media.SoundPool;
 import android.media.AudioManager;
 import android.media.SoundPool.OnLoadCompleteListener;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 
 import java.lang.reflect.InvocationTargetException;
@@ -34,6 +35,13 @@ import android.text.TextWatcher;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import zephyr.android.BioHarnessBT.*;
 
+
+enum DistortionType {
+	WhiteNoise,
+	Layering
+}
+
+
 public class MainActivity extends Activity {
     /** Called when the activity is first created. */
 	BluetoothAdapter adapter = null;
@@ -49,29 +57,20 @@ public class MainActivity extends Activity {
 	boolean[] songsPlaying;
 	int[] streamIds;
 	int[] soundIds;
-<<<<<<< HEAD
+	DistortionType distortionType = DistortionType.Layering;
+	MediaPlayer[] mediaPlayers;
+
 	
 	public Spinner spinnerTrack;
-=======
+
 	BioHarnessController bhController;
-	 
->>>>>>> d6073ca74d2b409aa20dc97ac957216492b599d8
-	
-	//@Override
-    //public void onCreate1(Bundle savedInstanceState) {
-      //  super.onCreate1(savedInstanceState);
-        //Log.d("Application", "onCreate");
-        //setContentView(R.layout.main_menu);
-        
-       // spinnerTrack = (Spinner)findViewById(R.id.spinner1);
-	//}
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("Application", "onCreate");   
         
-        setContentView(R.layout.main);
+        setContentView(R.layout.main_menu);
         spinnerTrack = (Spinner)findViewById(R.id.spinner1);
         
         //Sending a message to android that we are going to initiate a pairing request
@@ -142,13 +141,12 @@ public class MainActivity extends Activity {
         if (btnDisconnect != null)
         {
         	btnDisconnect.setOnClickListener(new OnClickListener() {
+
 				@Override
-				//Functionality to act if the button DISCONNECT is touched
-				public void onClick(View v) {
-					// TODO Auto-generated method stub
+				public void onClick(View v) { 
 					//Reset the global variables
 					TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
-    				String ErrorText  = "Disconnected from BioHarness!";
+					String ErrorText  = "Disconnected from BioHarness!";
 					 tv.setText(ErrorText);
 
 					//This disconnects listener from acting on received messages	
@@ -156,6 +154,7 @@ public class MainActivity extends Activity {
 					//Close the communication with the device & throw an exception if failure
 					_bt.Close();
 				}
+
         	});
         }
         
@@ -190,8 +189,7 @@ public class MainActivity extends Activity {
     		super.onPause();
     		Log.d("Application", "onPause");
     		for(int i=0; i<soundIds.length; i++){
-    			songsPlaying[i] = false;
-    			soundPool.stop(streamIds[i]);
+    			stopChannel(i);
     		}
     }
     
@@ -203,14 +201,14 @@ public class MainActivity extends Activity {
     
     private void initSeekBars(){
     	
-    		SeekBar[] seekBars = new SeekBar[3];
+    		SeekBar[] seekBars = new SeekBar[1];
     		seekBars[0] = ((SeekBar) findViewById(R.id.seekBar1));
-    		seekBars[1] = ((SeekBar) findViewById(R.id.seekBar2));
-    		seekBars[2] = ((SeekBar) findViewById(R.id.seekBar3));
+    		//seekBars[1] = ((SeekBar) findViewById(R.id.seekBar2));
+    		//seekBars[2] = ((SeekBar) findViewById(R.id.seekBar3));
     		
     		initSeekBar(seekBars[0], 0);
-    		initSeekBar(seekBars[1], 1);
-    		initSeekBar(seekBars[2], 2);
+    		//initSeekBar(seekBars[1], 1);
+    		//initSeekBar(seekBars[2], 2);
     }
     
     private void initSeekBar(SeekBar seekBar, final int index)
@@ -218,8 +216,8 @@ public class MainActivity extends Activity {
     			seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener(){
             @Override
             public void onProgressChanged(SeekBar arg0, int seekPercentage, boolean arg2) {
-            		float volume = (float)seekPercentage/100;
-            		soundPool.setVolume(soundIds[index], volume, volume);
+            		//float volume = (float)seekPercentage/100;
+            		//soundPool.setVolume(soundIds[index], volume, volume);
             }
 			@Override public void onStartTrackingTouch(SeekBar seekBar) {	}
 			@Override public void onStopTrackingTouch(SeekBar seekBar) {}
@@ -228,26 +226,43 @@ public class MainActivity extends Activity {
     
     private void initSounds(){
     	
-    	songsPlaying = new boolean[3];
-    	soundIds = new int[3];
-    	streamIds = new int[3];
-    	
-    	for(int i=0; i<songsPlaying.length; i++)
-    	{
-    		songsPlaying[i] = false;
-    	}
-    	
-    	soundPool = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
-    	
-    	soundIds[0] = soundPool.load(getBaseContext(), R.raw.bass, 1);
-	    soundIds[1] = soundPool.load(getBaseContext(), R.raw.drumz, 1);
-	    soundIds[2] = soundPool.load(getBaseContext(), R.raw.synth, 1);
-	    soundPool.setOnLoadCompleteListener(new OnLoadCompleteListener() {
-	        public void onLoadComplete(SoundPool soundPool, int sampleId,int status) {
-	        	onSoundsLoadComplete(sampleId);
-	        }
-	    });
-	    	    
+	    	songsPlaying = new boolean[3];
+	    	soundIds = new int[3];
+	    	streamIds = new int[3];
+	    	
+	    	for(int i=0; i<songsPlaying.length; i++)
+	    	{
+	    		songsPlaying[i] = false;
+	    	}
+	    	
+	    	soundPool = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
+	    	
+		soundIds[0] = soundPool.load(getBaseContext(), R.raw.drumz, 1);
+		soundIds[1] = soundPool.load(getBaseContext(), R.raw.white_noise, 1);
+		soundIds[2] = soundPool.load(getBaseContext(), R.raw.bass, 1);
+		soundPool.setOnLoadCompleteListener(new OnLoadCompleteListener() {
+			public void onLoadComplete(SoundPool soundPool, int sampleId,int status) { 
+				onSoundsLoadComplete(sampleId);
+			}
+		});
+		
+		mediaPlayers = new MediaPlayer[4];
+		mediaPlayers[0] = initMediaPlayer(R.raw.bass);
+		mediaPlayers[1] = initMediaPlayer(R.raw.drumz);
+		mediaPlayers[2] = initMediaPlayer(R.raw.synth);
+		mediaPlayers[3] = initMediaPlayer(R.raw.white_noise);
+		
+		playChannels(new int[] {0,1,2});
+    }
+    
+    private MediaPlayer initMediaPlayer(int songId)
+    {
+    		MediaPlayer mediaPlayer = MediaPlayer.create(getBaseContext(), songId);
+		mediaPlayer.setLooping(true);
+		mediaPlayer.setVolume(0,0);
+		mediaPlayer.start();
+		
+		return mediaPlayer;
     }
     
     private void onSoundsLoadComplete(int sampleId){
@@ -270,7 +285,7 @@ public class MainActivity extends Activity {
 	    	
 	    	if(!songsPlaying[songNumber])
 	    	{
-	    		streamIds[songNumber] = soundPool.play(soundIds[songNumber], 1, 1, 1, 0, 1);
+	    		streamIds[songNumber] = soundPool.play(soundIds[songNumber], 1, 1, 1, -1, 1);
 	    		songsPlaying[songNumber] = true;
 	    	}
 	    	else {
@@ -280,30 +295,41 @@ public class MainActivity extends Activity {
     }
     
     
+    
+    
+    
     private void startChannel(int channel)
     {
-		streamIds[channel] = soundPool.play(soundIds[channel], 1, 1, 1, 0, 1);
+		//streamIds[channel] = soundPool.play(soundIds[channel], 1, 1, 1,-1, channel);
+    		mediaPlayers[channel].setVolume(1,1);
     }
     
     
     private void stopChannel(int channel)
     {
-    		soundPool.stop(streamIds[channel]);
+    		Log.d("Channel", "Channel #: "+channel);
+    		mediaPlayers[channel].setVolume(0,0);
+    		//soundPool.stop(streamIds[channel]);
     }
     
     
     private void playChannels(int[] channels){
     	
-    		for(int channel=0; channel<streamIds.length; channel++)
+    		for(int channel=0; channel<mediaPlayers.length; channel++)
     		{
     			stopChannel(channel);
     		}
     	
     		for(int channel : channels)
     		{
+    			Log.d("Channel","Channel: "+channel);
     			startChannel(channel);
-    		}
-    		
+    		}    		
+    }
+    
+    private void setVolume(float d)
+    {
+    		mediaPlayers[3].setVolume(d, d);
     }
     
     
@@ -314,30 +340,51 @@ public class MainActivity extends Activity {
     		{
     			case 0:
     			case 1:
+    				setVolume(0.22f);
+    				break;
     			case 2:	
-    				playChannels( new int[] {0} );
+    				//playChannels( new int[] {0} );
+    				setVolume(0.16f);
     				break;
     			case 3:
+    				setVolume(0.1f);
+    				break;
     			case 4:
-    				playChannels( new int[] {0,2});
+    				//playChannels( new int[] {0,2});
+    				setVolume(0.04f);
     				break;
     			case 5:
     			case 6:
     			case 7:
-    				playChannels( new int[] {0,1,2});
+    				//playChannels( new int[] {0,1,2});
+    				setVolume(0f);
     				break;
     			case 8:
+    				setVolume(0.04f);
+    				break;
     			case 9:
+    				setVolume(0.08f);
+    				break;
     			case 10:
+    				setVolume(0.12f);
+    				break;
     			case 11:
-    				playChannels( new int[] {0,2});
+    				setVolume(0.16f);
+    				//playChannels( new int[] {0,2});
     				break;
     			case 12:
+    				setVolume(0.2f);
+    				break;
     			case 13:
+    				setVolume(0.24f);
+    				break;
     			case 14:
+    				setVolume(0.28f);
+    				break;
     			case 15:
     			default:
-    				playChannels( new int[] {0});
+    				//playChannels( new int[] {0});
+    				setVolume(0.3f);
     				break;
     		}
     }
