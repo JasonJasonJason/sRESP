@@ -195,7 +195,7 @@ public class MainActivity extends Activity {
     
     public void goToGraph(View view)
     {
-    		Intent intent = new Intent(this, GraphActivity.class);
+    	Intent intent = new Intent(this, GraphActivity.class);
         startActivity(intent);
     }
     

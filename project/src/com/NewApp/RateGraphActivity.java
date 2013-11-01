@@ -14,6 +14,8 @@
  *    limitations under the License.
  */
 
+package com.NewApp ;
+
 import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
@@ -78,7 +80,7 @@ public class RateGraphActivity extends Activity
     {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.rate_plot);
+        setContentView(R.layout.graph);
 
         // initialize our XYPlot reference:
         plot = (XYPlot) findViewById(R.id.mySimpleXYPlot);
@@ -94,7 +96,7 @@ public class RateGraphActivity extends Activity
         updatePlot();
        
      
-        plot.setDomainValueFormat(new NumberFormat()) {
+        plot.setDomainValueFormat(new NumberFormat() {
             @Override
             public StringBuffer format(double value, StringBuffer buffer, FieldPosition field) {
                 String user = "user";
@@ -133,7 +135,8 @@ public class RateGraphActivity extends Activity
 
         // Setup the BarRenderer with our selected options
         MyBarRenderer renderer = ((MyBarRenderer)plot.getRenderer(MyBarRenderer.class));
-        renderer.setBarRenderStyle((BarRenderer.BarRenderStyle)spRenderStyle.getSelectedItem());
+        /*renderer.setBarRenderStyle((BarRenderer.BarRenderStyle)spRenderStyle.getSelectedItem());
+        //renderer.setBarRenderStyle(new BarRenderStyle());
         renderer.setBarWidthStyle((BarRenderer.BarWidthStyle)spWidthStyle.getSelectedItem());
         renderer.setBarWidth(sbFixedWidth.getProgress());
         renderer.setBarGap(sbVariableWidth.getProgress());
@@ -142,7 +145,7 @@ public class RateGraphActivity extends Activity
         	plot.setRangeTopMin(15);
         } else {
         	plot.setRangeTopMin(0);
-        }
+        }*/
 	        
         plot.redraw();	
     }  
