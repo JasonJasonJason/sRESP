@@ -392,13 +392,16 @@ public class MainActivity extends Activity {
     
     private void handleNewRespirationRate(float respirationRate)
     {
-    		float previousRespirationRate = bhController.getRespirationRate();
-    		bhController.setRespirationRate(respirationRate);
-    		
-    		if(Math.floor(previousRespirationRate) != Math.floor(respirationRate))
-    		{
-    			adjustAudio();
-    		}
+    	
+        ((sRESPApplication) getApplication()).setRespirationRate(respirationRate);
+	
+		float previousRespirationRate = bhController.getRespirationRate();
+		bhController.setRespirationRate(respirationRate);
+		
+		if(Math.floor(previousRespirationRate) != Math.floor(respirationRate))
+		{
+			adjustAudio();
+		}
     }
     
     

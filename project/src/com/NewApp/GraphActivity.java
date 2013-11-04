@@ -21,6 +21,8 @@ import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.app.Activity;
 import android.graphics.Color;
@@ -65,8 +67,7 @@ public class GraphActivity extends Activity
 
     // Create a couple arrays of y-values to plot:
     //initially set both to ideal (6)
-    Number[] series1Numbers = {null,1,13,4};
-    Number[] series2Numbers = {3}; 
+    Number[] series1Numbers = {14.7,6};
 
     private MyBarFormatter formatter1, formatter2;
 
@@ -80,7 +81,7 @@ public class GraphActivity extends Activity
         setContentView(R.layout.graph);
         
         formatter1 = new MyBarFormatter(Color.argb(200, 100, 150, 100), Color.LTGRAY);
-        formatter2 = new MyBarFormatter(Color.argb(200, 100, 100, 150), Color.LTGRAY);
+        //formatter2 = new MyBarFormatter(Color.argb(200, 100, 100, 150), Color.LTGRAY);
 
         // initialize our XYPlot reference:
         plot = (XYPlot) findViewById(R.id.mySimpleXYPlot);
@@ -90,31 +91,12 @@ public class GraphActivity extends Activity
         plot.setRangeLowerBoundary(0, BoundaryMode.FIXED);
         plot.getGraphWidget().setGridPadding(30, 10, 30, 0);
 
-        plot.setTicksPerDomainLabel(2);      
+        plot.setTicksPerDomainLabel(1);      
 
-       
-       // updatePlot();
-       
-     
-        /*plot.setDomainValueFormat(new NumberFormat() {
-            @Override
-            public StringBuffer format(double value, StringBuffer buffer, FieldPosition field) {
-                String user = "user";
-                String ideal = "ideal";
-                return new StringBuffer(ideal + user);
-            }
-
-            @Override
-            public StringBuffer format(long value, StringBuffer buffer, FieldPosition field) {
-                throw new UnsupportedOperationException("Not yet implemented.");
-            }
-
-            @Override
-            public Number parse(String string, ParsePosition position) {
-                throw new UnsupportedOperationException("Not yet implemented.");
-            }
-        });*/
         updatePlot();
+        
+        Timer timer = new Timer();
+        timer.schedule(new firstTask(), 0, 500);
 
     }
 
@@ -128,29 +110,20 @@ public class GraphActivity extends Activity
         	XYSeries setElement = iterator1.next();
         	plot.removeSeries(setElement);
         }
+        
+        float respirationRate = ((sRESPApplication) getApplication()).getRespirationRate();
 
+        series1Numbers[0] = respirationRate;
+        
         // Setup our Series with the selected number of elements
         series1 = new SimpleXYSeries(Arrays.asList(series1Numbers), SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, "User");
-        series2 = new SimpleXYSeries(Arrays.asList(series2Numbers), SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, "Ideal");
         
         plot.addSeries(series1, formatter1);
-        plot.addSeries(series2, formatter2);
 
         // Setup the BarRenderer with our selected options
         MyBarRenderer renderer = ((MyBarRenderer)plot.getRenderer(MyBarRenderer.class));
-        renderer.setBarWidth(10);
+        renderer.setBarWidth(30);
         renderer.setBarRenderStyle(BarRenderStyle.SIDE_BY_SIDE);
-        /*renderer.setBarRenderStyle((BarRenderer.BarRenderStyle)spRenderStyle.getSelectedItem());
-        //renderer.setBarRenderStyle(new BarRenderStyle());
-        renderer.setBarWidthStyle((BarRenderer.BarWidthStyle)spWidthStyle.getSelectedItem());
-        renderer.setBarWidth(sbFixedWidth.getProgress());
-        renderer.setBarGap(sbVariableWidth.getProgress());
-        
-        if (BarRenderer.BarRenderStyle.STACKED.equals(spRenderStyle.getSelectedItem())) {
-        	plot.setRangeTopMin(15);
-        } else {
-        	plot.setRangeTopMin(0);
-        }*/
 	        
         plot.redraw();	
     }  
@@ -177,4 +150,13 @@ public class GraphActivity extends Activity
             super(plot);
         }
     }
+    
+    
+    class firstTask extends TimerTask {
+
+        @Override
+        public void run() {
+            updatePlot();
+        }
+   };
 }
