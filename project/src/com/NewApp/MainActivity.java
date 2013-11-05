@@ -267,15 +267,15 @@ public class MainActivity extends Activity {
 	
 		mediaPlayers = new MediaPlayer[4];
 		mediaPlayers[0] = initMediaPlayer(R.raw.bass);
-		mediaPlayers[1] = initMediaPlayer(R.raw.drumz);
-		mediaPlayers[2] = initMediaPlayer(R.raw.synth);
-		mediaPlayers[3] = initMediaPlayer(R.raw.white_noise);
+		mediaPlayers[1] = initMediaPlayer(R.raw.drums);
+		mediaPlayers[2] = initMediaPlayer(R.raw.drums_layer2);
+		mediaPlayers[3] = initMediaPlayer(R.raw.plucks);
 		
 		playChannels(new int[] {0,1,2});
     }
     
     private void noiseInit(){
-    		noiseSound = initMediaPlayer(R.raw.drumz);
+    		noiseSound = initMediaPlayer(R.raw.noise_track);
     		noise = initMediaPlayer(R.raw.white_noise);
     }
     
@@ -342,15 +342,15 @@ public class MainActivity extends Activity {
     		switch(respirationRate)
 		{
 			case 0:
-			case 1:
-			case 2:	playChannels( new int[] {0} ); break;
-			case 3:
-			case 4: playChannels( new int[] {0,2}); break;
+			case 1:	playChannels( new int[] {0} ); break;
+			case 2:
+			case 3: playChannels( new int[] {0,1}); break;
+			case 4:  playChannels( new int[] {0,1,2}); break;
 			case 5:
 			case 6:
-			case 7: playChannels( new int[] {0,1,2}); break;
+			case 7: playChannels( new int[] {0,1,2,3}); break;
 			case 8:
-			case 9:
+			case 9: playChannels( new int[] {0,1,2}); break;
 			case 10:
 			case 11: playChannels( new int[] {0,2}); break;
 			case 12:
@@ -452,9 +452,13 @@ public class MainActivity extends Activity {
     		{
     		case RESPIRATION_RATE:
     			String RespirationRatetext = msg.getData().getString("RespirationRate");
+    			
 	    		try{
-	    			float respirationRate = Float.parseFloat(RespirationRatetext);
-	    			handleNewRespirationRate(respirationRate);
+	    			if(RespirationRatetext.length() > 0)
+	    			{
+		    			float respirationRate = Float.parseFloat(RespirationRatetext);
+		    			handleNewRespirationRate(respirationRate);
+	    			}
     			}
 			catch(Exception e)
 			{
