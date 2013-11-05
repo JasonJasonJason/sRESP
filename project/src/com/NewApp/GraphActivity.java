@@ -59,6 +59,7 @@ import com.androidplot.ui.YLayoutStyle;
 public class GraphActivity extends Activity
 {
     private XYPlot plot;
+    //private BarPlot plott;
     
     private XYSeries series1;
 

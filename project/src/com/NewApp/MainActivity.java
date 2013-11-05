@@ -10,9 +10,13 @@ import android.os.Bundle;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 //import com.NewApp.android.R;
+
+
 
 
 
@@ -48,19 +52,11 @@ public class MainActivity extends Activity {
 	BTClient _bt;
 	ZephyrProtocol _protocol;
 	NewConnectedListener _NConnListener;
-	private final int HEART_RATE = 0x100;
 	private final int RESPIRATION_RATE = 0x101;
-	private final int SKIN_TEMPERATURE = 0x102;
-	private final int POSTURE = 0x103;
-	private final int PEAK_ACCLERATION = 0x104;
-	SoundPool soundPool;
-	boolean[] songsPlaying;
-	int[] streamIds;
-	int[] soundIds;
 	DistortionType distortionType = DistortionType.Layering;
 	MediaPlayer[] mediaPlayers;
-
-	
+	MediaPlayer noiseSound;
+	MediaPlayer noise;
 	public Spinner spinnerTrack;
 
 	BioHarnessController bhController;
@@ -84,15 +80,14 @@ public class MainActivity extends Activity {
       //Obtaining the handle to act on the CONNECT button
         TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
 		String ErrorText  = "Failed to connect!";
-		 tv.setText(ErrorText);
+		tv.setText(ErrorText);
 
         Button btnConnect = (Button) findViewById(R.id.ButtonConnect);
         if (btnConnect != null)
         {
-        	btnConnect.setOnClickListener(new OnClickListener() {
+        		btnConnect.setOnClickListener(new OnClickListener() {
         		public void onClick(View v) {
         			String BhMacID = "00:07:80:9D:8A:E8";
-        			//String BhMacID = "00:07:80:88:F6:BF";
         			adapter = BluetoothAdapter.getDefaultAdapter();
         			
         			Set<BluetoothDevice> pairedDevices = adapter.getBondedDevices();
@@ -140,26 +135,25 @@ public class MainActivity extends Activity {
         Button btnDisconnect = (Button) findViewById(R.id.ButtonDisconnect);
         if (btnDisconnect != null)
         {
-        	btnDisconnect.setOnClickListener(new OnClickListener() {
-
+        		btnDisconnect.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) { 
 					//Reset the global variables
 					TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
 					String ErrorText  = "Disconnected from BioHarness!";
-					 tv.setText(ErrorText);
+					tv.setText(ErrorText);
 
 					//This disconnects listener from acting on received messages	
 					_bt.removeConnectedEventListener(_NConnListener);
 					//Close the communication with the device & throw an exception if failure
-					_bt.Close();
+					_bt.Close(); 
 				}
-
         	});
         }
         
         //Initializing Sounds
-        initSounds();
+        layeringInit();
+        noiseInit();
         
         //Initializing SeekBars
         initSeekBars();
@@ -167,7 +161,64 @@ public class MainActivity extends Activity {
         //Initializing BioHarnessController
         bhController = new BioHarnessController();
         
-        EditText textMessage = (EditText)findViewById(R.id.editText1);
+        initManualInputBox(); 
+    }
+    
+    @Override
+    public void onPause(){
+    		super.onPause();
+    		Log.d("Application", "onPause called");
+    		
+    		if(distortionType == DistortionType.Layering)
+    			layeringPause();
+    		else if (distortionType == DistortionType.WhiteNoise)
+    			noisePause();
+    }
+    
+    public void onRadioButtonClicked(View view) {
+	    // Is the button now checked?
+	    boolean checked = ((RadioButton) view).isChecked();
+	    
+	    // Check which radio button was clicked
+	    switch(view.getId()) {
+	    		case R.id.radio_layering:
+	            if (checked)
+	            {
+	            		distortionType = DistortionType.Layering;
+	            		noisePause();
+	            		adjustAudio();
+	            }
+	            break;
+	        case R.id.radio_noise:
+	            if (checked)
+	            {
+	            		distortionType = DistortionType.WhiteNoise;
+	            		layeringPause();
+	            		adjustAudio();
+	            }
+	            break;
+	    }
+	}
+    
+    
+    private void layeringPause(){
+    		
+    		for(int i=0; i<mediaPlayers.length; i++)
+    		{
+    			stopChannel(i);
+    		}
+    }
+    
+    private void noisePause(){
+    		
+    		noise.setVolume(0, 0);
+    		noiseSound.setVolume(0, 0);
+    }
+    
+    
+    private void initManualInputBox()
+    {
+    		EditText textMessage = (EditText)findViewById(R.id.editText1);
         textMessage.addTextChangedListener(new TextWatcher(){
         		@Override
             public void afterTextChanged(Editable s) {
@@ -181,17 +232,9 @@ public class MainActivity extends Activity {
             }
             public void beforeTextChanged(CharSequence s, int start, int count, int after){}
             public void onTextChanged(CharSequence s, int start, int before, int count){}
-        }); 
+        });
     }
     
-    @Override
-    public void onPause(){
-    		super.onPause();
-    		Log.d("Application", "onPause");
-    		for(int i=0; i<soundIds.length; i++){
-    			stopChannel(i);
-    		}
-    }
     
     public void goToGraph(View view)
     {
@@ -203,12 +246,8 @@ public class MainActivity extends Activity {
     	
     		SeekBar[] seekBars = new SeekBar[1];
     		seekBars[0] = ((SeekBar) findViewById(R.id.seekBar1));
-    		//seekBars[1] = ((SeekBar) findViewById(R.id.seekBar2));
-    		//seekBars[2] = ((SeekBar) findViewById(R.id.seekBar3));
     		
     		initSeekBar(seekBars[0], 0);
-    		//initSeekBar(seekBars[1], 1);
-    		//initSeekBar(seekBars[2], 2);
     }
     
     private void initSeekBar(SeekBar seekBar, final int index)
@@ -224,28 +263,8 @@ public class MainActivity extends Activity {
         });
     }
     
-    private void initSounds(){
-    	
-	    	songsPlaying = new boolean[3];
-	    	soundIds = new int[3];
-	    	streamIds = new int[3];
-	    	
-	    	for(int i=0; i<songsPlaying.length; i++)
-	    	{
-	    		songsPlaying[i] = false;
-	    	}
-	    	
-	    	soundPool = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
-	    	
-		soundIds[0] = soundPool.load(getBaseContext(), R.raw.drumz, 1);
-		soundIds[1] = soundPool.load(getBaseContext(), R.raw.white_noise, 1);
-		soundIds[2] = soundPool.load(getBaseContext(), R.raw.bass, 1);
-		soundPool.setOnLoadCompleteListener(new OnLoadCompleteListener() {
-			public void onLoadComplete(SoundPool soundPool, int sampleId,int status) { 
-				onSoundsLoadComplete(sampleId);
-			}
-		});
-		
+    private void layeringInit(){
+	
 		mediaPlayers = new MediaPlayer[4];
 		mediaPlayers[0] = initMediaPlayer(R.raw.bass);
 		mediaPlayers[1] = initMediaPlayer(R.raw.drumz);
@@ -253,6 +272,11 @@ public class MainActivity extends Activity {
 		mediaPlayers[3] = initMediaPlayer(R.raw.white_noise);
 		
 		playChannels(new int[] {0,1,2});
+    }
+    
+    private void noiseInit(){
+    		noiseSound = initMediaPlayer(R.raw.drumz);
+    		noise = initMediaPlayer(R.raw.white_noise);
     }
     
     private MediaPlayer initMediaPlayer(int songId)
@@ -265,51 +289,17 @@ public class MainActivity extends Activity {
 		return mediaPlayer;
     }
     
-    private void onSoundsLoadComplete(int sampleId){
-    	//soundPool.play(sampleId, 1, 1, 1, 0, 1);
-    }
-    
-    public void toggle1(View view) {
-    	toggle(0);
-    }
-    
-    public void toggle2(View view) {
-    	toggle(1);
-    }
-    
-    public void toggle3(View view) {
-    	toggle(2);
-    }
-    
-    private void toggle(int songNumber){
-	    	
-	    	if(!songsPlaying[songNumber])
-	    	{
-	    		streamIds[songNumber] = soundPool.play(soundIds[songNumber], 1, 1, 1, -1, 1);
-	    		songsPlaying[songNumber] = true;
-	    	}
-	    	else {
-	    		soundPool.stop(streamIds[songNumber]);
-	    		songsPlaying[songNumber] = false;    
-	    	}
-    }
-    
-    
-    
-    
-    
     private void startChannel(int channel)
     {
-		//streamIds[channel] = soundPool.play(soundIds[channel], 1, 1, 1,-1, channel);
+    		Log.d("Audio", "Starting audio channel #" + channel);
     		mediaPlayers[channel].setVolume(1,1);
     }
     
     
     private void stopChannel(int channel)
     {
-    		Log.d("Channel", "Channel #: "+channel);
+    		Log.d("Audio", "Stopping audio channel #" + channel);
     		mediaPlayers[channel].setVolume(0,0);
-    		//soundPool.stop(streamIds[channel]);
     }
     
     
@@ -317,81 +307,89 @@ public class MainActivity extends Activity {
     	
     		for(int channel=0; channel<mediaPlayers.length; channel++)
     		{
-    			stopChannel(channel);
+    			if(arrayContains(channels, channel))
+    				startChannel(channel);
+    			else
+    				stopChannel(channel);
     		}
-    	
-    		for(int channel : channels)
-    		{
-    			Log.d("Channel","Channel: "+channel);
-    			startChannel(channel);
-    		}    		
+    }
+    
+    private boolean arrayContains(int[] arr, int item)
+    {
+    		for(int i=0; i<arr.length; i++)
+    			if(arr[i] == item)
+    				return true;
+    		return false;
     }
     
     private void setVolume(float d)
     {
-    		mediaPlayers[3].setVolume(d, d);
+    		noise.setVolume(d, d);
     }
     
     
     private void adjustAudio()
     {
     		int respirationRate = (int) Math.floor(bhController.getRespirationRate());
+    		if(distortionType == DistortionType.Layering)
+    			adjustLayeringAudio(respirationRate);
+    		else if (distortionType == DistortionType.WhiteNoise)
+    			adjustNoiseAudio(respirationRate);
+    }
+    
+    private void adjustLayeringAudio(int respirationRate){
+    	
     		switch(respirationRate)
-    		{
-    			case 0:
-    			case 1:
-    				setVolume(0.22f);
-    				break;
-    			case 2:	
-    				//playChannels( new int[] {0} );
-    				setVolume(0.16f);
-    				break;
-    			case 3:
-    				setVolume(0.1f);
-    				break;
-    			case 4:
-    				//playChannels( new int[] {0,2});
-    				setVolume(0.04f);
-    				break;
-    			case 5:
-    			case 6:
-    			case 7:
-    				//playChannels( new int[] {0,1,2});
-    				setVolume(0f);
-    				break;
-    			case 8:
-    				setVolume(0.04f);
-    				break;
-    			case 9:
-    				setVolume(0.08f);
-    				break;
-    			case 10:
-    				setVolume(0.12f);
-    				break;
-    			case 11:
-    				setVolume(0.16f);
-    				//playChannels( new int[] {0,2});
-    				break;
-    			case 12:
-    				setVolume(0.2f);
-    				break;
-    			case 13:
-    				setVolume(0.24f);
-    				break;
-    			case 14:
-    				setVolume(0.28f);
-    				break;
-    			case 15:
-    			default:
-    				//playChannels( new int[] {0});
-    				setVolume(0.3f);
-    				break;
-    		}
+		{
+			case 0:
+			case 1:
+			case 2:	playChannels( new int[] {0} ); break;
+			case 3:
+			case 4: playChannels( new int[] {0,2}); break;
+			case 5:
+			case 6:
+			case 7: playChannels( new int[] {0,1,2}); break;
+			case 8:
+			case 9:
+			case 10:
+			case 11: playChannels( new int[] {0,2}); break;
+			case 12:
+			case 13:
+			case 14:
+			case 15:
+			default:playChannels( new int[] {0}); break;
+		}
+    }
+    
+    private void adjustNoiseAudio(int respirationRate){
+    	
+    		noiseSound.setVolume(1, 1);
+    		switch(respirationRate)
+		{
+			case 0:
+			case 1: setVolume(0.22f); break;
+			case 2:	setVolume(0.16f); break;
+			case 3: setVolume(0.1f); break;
+			case 4: setVolume(0.04f); break;
+			case 5:
+			case 6:
+			case 7: setVolume(0f); break;
+			case 8: setVolume(0.04f); break;
+			case 9: setVolume(0.08f); break;
+			case 10: setVolume(0.12f); break;
+			case 11: setVolume(0.16f); break;
+			case 12: setVolume(0.2f); break;
+			case 13: setVolume(0.24f); break;
+			case 14: setVolume(0.28f);break;
+			case 15:
+			default: setVolume(0.3f); break;
+		}
     }
     
     
     private void handleNewRespirationRate(float respirationRate)
     {
+<<<<<<< HEAD
     	
         ((sRESPApplication) getApplication()).setRespirationRate(respirationRate);
 	
@@ -402,6 +400,16 @@ public class MainActivity extends Activity {
 		{
 			adjustAudio();
 		}
+=======
+    		Log.d("Respiration Rate", "Respiration Rate: " + respirationRate);
+    		float previousRespirationRate = bhController.getRespirationRate();
+    		bhController.setRespirationRate(respirationRate);
+    		
+    		if(Math.floor(previousRespirationRate) != Math.floor(respirationRate))
+    		{
+    			adjustAudio();
+    		}
+>>>>>>> Audio
     }
     
     
