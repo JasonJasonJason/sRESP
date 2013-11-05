@@ -84,16 +84,6 @@
         android:minWidth="100dp"
         android:text="Connect" />
 
-    <TextView
-        android:id="@+id/RespirationRate"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/ButtonDisconnect"
-        android:layout_marginTop="15dp"
-        android:text="Respiration Rate"
-        android:textSize="20sp" />
-
     <EditText
         android:id="@+id/labelRespRate"
         android:layout_width="wrap_content"
@@ -108,17 +98,9 @@
         android:focusableInTouchMode="false"
         android:text="000" >
 
-        <requestFocus />
-    </EditText>
+        <requestFocus android:layout_width="match_parent" />
 
-    <TextView
-        android:id="@+id/StatusTextBox"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"
-        android:text="Status Message"
-        android:textSize="20sp" />
+    </EditText>
 
     <EditText
         android:id="@+id/labelStatusMsg"
@@ -133,5 +115,54 @@
         android:focusable="false"
         android:focusableInTouchMode="false"
         android:text="Respiration Signal Graph" />
+
+    <RadioGroup
+        android:id="@+id/radioGroup1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/StatusTextBox"
+        android:layout_toLeftOf="@+id/ButtonDisconnect" >
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/RespirationRate"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/ButtonDisconnect"
+        android:text="Respiration Rate"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/StatusTextBox"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/labelRespRate"
+        android:text="Status Message"
+        android:textSize="20sp" />
+
+	<RadioGroup
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentLeft="true"
+	    android:layout_below="@+id/labelStatusMsg"
+	    android:orientation="horizontal" >
+
+	    <RadioButton
+	        android:id="@+id/radio_layering"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:onClick="onRadioButtonClicked"
+	        android:text="Layering" 
+	        android:checked="true" />
+
+	    <RadioButton
+	        android:id="@+id/radio_noise"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:onClick="onRadioButtonClicked"
+	        android:text="Noise" />
+	</RadioGroup>
 
 </RelativeLayout>

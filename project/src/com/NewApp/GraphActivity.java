@@ -59,20 +59,16 @@ import com.androidplot.ui.YLayoutStyle;
 public class GraphActivity extends Activity
 {
     private XYPlot plot;
+    //private BarPlot plott;
     
-    //Only need 2 series, one for user one for target
     private XYSeries series1;
-    private XYSeries series2;
-    private int SeriesSize = 1;
 
     // Create a couple arrays of y-values to plot:
     //initially set both to ideal (6)
     Number[] series1Numbers = {0, 14.7, 0, 0};
     Number[] series2Numbers = {0, 0, 6, 0};
 
-    private MyBarFormatter formatter1, formatter2;
-
-    private TextLabelWidget label;
+    private MyBarFormatter formatter1;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -81,8 +77,12 @@ public class GraphActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.graph);
         
+<<<<<<< HEAD
         formatter1 = new MyBarFormatter(Color.argb(400, 100, 150, 200), Color.LTGRAY);
         formatter2 = new MyBarFormatter(Color.argb(200, 55, 163, 77), Color.LTGRAY);
+=======
+        formatter1 = new MyBarFormatter(Color.argb(200, 100, 150, 100), Color.LTGRAY);
+>>>>>>> ed75872e692fb775e572ad14cb097a58861e30e0
 
         // initialize our XYPlot reference:
         plot = (XYPlot) findViewById(R.id.mySimpleXYPlot);
@@ -110,8 +110,6 @@ public class GraphActivity extends Activity
 
     }
 
-    //I don't think this is right, but we can change it to simply redraw the plot with the new data
-    //I think this adds new bars to the graph
     private void updatePlot() {
     	
     	// Remove all current series from each plot
