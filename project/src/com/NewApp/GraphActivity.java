@@ -67,7 +67,8 @@ public class GraphActivity extends Activity
 
     // Create a couple arrays of y-values to plot:
     //initially set both to ideal (6)
-    Number[] series1Numbers = {14.7,6};
+    Number[] series1Numbers = {0, 14.7, 0, 0};
+    Number[] series2Numbers = {0, 0, 6, 0};
 
     private MyBarFormatter formatter1, formatter2;
 
@@ -80,19 +81,28 @@ public class GraphActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.graph);
         
-        formatter1 = new MyBarFormatter(Color.argb(200, 100, 150, 100), Color.LTGRAY);
-        //formatter2 = new MyBarFormatter(Color.argb(200, 100, 100, 150), Color.LTGRAY);
+        formatter1 = new MyBarFormatter(Color.argb(400, 100, 150, 200), Color.LTGRAY);
+        formatter2 = new MyBarFormatter(Color.argb(200, 55, 163, 77), Color.LTGRAY);
 
         // initialize our XYPlot reference:
         plot = (XYPlot) findViewById(R.id.mySimpleXYPlot);
 
         // reduce the number of range labels
-        plot.setTicksPerRangeLabel(3);
+        plot.setTicksPerRangeLabel(1);
+        plot.setRangeBoundaries(0, 20, BoundaryMode.FIXED);
+        plot.getGraphWidget().getDomainLabelPaint().setColor(Color.TRANSPARENT);  //remove the domain values
+        plot.getGraphWidget().getDomainOriginLabelPaint().setColor(Color.TRANSPARENT);
         plot.setRangeLowerBoundary(0, BoundaryMode.FIXED);
-        plot.getGraphWidget().setGridPadding(30, 10, 30, 0);
+        plot.getGraphWidget().setGridPadding(0, 20, 10, 0);
+        plot.getGraphWidget().setGridBackgroundPaint(null);
+        plot.getGraphWidget().getDomainGridLinePaint().setColor(Color.TRANSPARENT);
+        plot.getGraphWidget().getRangeGridLinePaint().setColor(Color.TRANSPARENT);
+        plot.getGraphWidget().getDomainSubGridLinePaint().setColor(Color.TRANSPARENT);
+        plot.getGraphWidget().getRangeSubGridLinePaint().setColor(Color.TRANSPARENT);
+        //plot.getGraphWidget().setDomainLabelWidth(200);
 
-        plot.setTicksPerDomainLabel(1);      
-
+        plot.setTicksPerDomainLabel(5);      
+    
         updatePlot();
         
         Timer timer = new Timer();
@@ -113,17 +123,25 @@ public class GraphActivity extends Activity
         
         float respirationRate = ((sRESPApplication) getApplication()).getRespirationRate();
 
-        series1Numbers[0] = respirationRate;
+        if(respirationRate > 20){
+        	series1Numbers[1] = 20;
+        	formatter1 = new MyBarFormatter(Color.argb(200, 189, 47, 47), Color.LTGRAY);
+        	plot.redraw();
+        }
+        else
+        	series1Numbers[1] = respirationRate;
         
         // Setup our Series with the selected number of elements
-        series1 = new SimpleXYSeries(Arrays.asList(series1Numbers), SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, "User");
+        series1 = new SimpleXYSeries(Arrays.asList(series1Numbers), SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, " You");
+        series2 = new SimpleXYSeries(Arrays.asList(series2Numbers), SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, " Ideal");
         
         plot.addSeries(series1, formatter1);
+        plot.addSeries(series2, formatter2);
 
         // Setup the BarRenderer with our selected options
         MyBarRenderer renderer = ((MyBarRenderer)plot.getRenderer(MyBarRenderer.class));
-        renderer.setBarWidth(30);
-        renderer.setBarRenderStyle(BarRenderStyle.SIDE_BY_SIDE);
+        renderer.setBarWidth(60);	//width of the bar plots
+        renderer.setBarRenderStyle(BarRenderStyle.OVERLAID);
 	        
         plot.redraw();	
     }  
