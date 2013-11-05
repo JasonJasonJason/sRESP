@@ -60,18 +60,13 @@ public class GraphActivity extends Activity
 {
     private XYPlot plot;
     
-    //Only need 2 series, one for user one for target
     private XYSeries series1;
-    private XYSeries series2;
-    private int SeriesSize = 1;
 
     // Create a couple arrays of y-values to plot:
     //initially set both to ideal (6)
     Number[] series1Numbers = {14.7,6};
 
-    private MyBarFormatter formatter1, formatter2;
-
-    private TextLabelWidget label;
+    private MyBarFormatter formatter1;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -81,7 +76,6 @@ public class GraphActivity extends Activity
         setContentView(R.layout.graph);
         
         formatter1 = new MyBarFormatter(Color.argb(200, 100, 150, 100), Color.LTGRAY);
-        //formatter2 = new MyBarFormatter(Color.argb(200, 100, 100, 150), Color.LTGRAY);
 
         // initialize our XYPlot reference:
         plot = (XYPlot) findViewById(R.id.mySimpleXYPlot);
@@ -100,8 +94,6 @@ public class GraphActivity extends Activity
 
     }
 
-    //I don't think this is right, but we can change it to simply redraw the plot with the new data
-    //I think this adds new bars to the graph
     private void updatePlot() {
     	
     	// Remove all current series from each plot
