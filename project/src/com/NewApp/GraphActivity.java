@@ -14,6 +14,7 @@ import java.util.Arrays;
 
 public class GraphActivity extends Activity {
     private XYPlot plot;
+    //private BarPlot plott;
     
     @Override
     public void onCreate(Bundle savedInstanceState)
