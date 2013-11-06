@@ -4,7 +4,7 @@ import android.app.Application;
 
 public class sRESPApplication extends Application{
 	
-	float currentRespirationRate = 130.3f;
+	float currentRespirationRate = 20.0f;
 	
 	public void setRespirationRate(float newRespirationRate)
 	{
