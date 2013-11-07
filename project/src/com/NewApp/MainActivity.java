@@ -17,26 +17,20 @@ import java.util.Set;
 //import com.NewApp.android.R;
 
 
-
-
-
-import android.R.*;
-import android.app.Activity;
 import android.bluetooth.*;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 import zephyr.android.BioHarnessBT.*;
 
 
@@ -61,108 +55,98 @@ public class MainActivity extends Activity {
 
 	BioHarnessController bhController;
 	
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState)
+	{
         super.onCreate(savedInstanceState);
         Log.d("Application", "onCreate");   
         
-        setContentView(R.layout.main_menu);
-        spinnerTrack = (Spinner)findViewById(R.id.spinner1);
+        setContentView(R.layout.bh_connection);
         
-        //Sending a message to android that we are going to initiate a pairing request
-        IntentFilter filter = new IntentFilter("android.bluetooth.device.action.PAIRING_REQUEST");
-        //Registering a new BTBroadcast receiver from the Main Activity context with pairing request event
-       this.getApplicationContext().registerReceiver(new BTBroadcastReceiver(), filter);
-        // Registering the BTBondReceiver in the application that the status of the receiver has changed to Paired
-        IntentFilter filter2 = new IntentFilter("android.bluetooth.device.action.BOND_STATE_CHANGED");
-       this.getApplicationContext().registerReceiver(new BTBondReceiver(), filter2);
-        
-      //Obtaining the handle to act on the CONNECT button
-        TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
-		String ErrorText  = "Failed to connect!";
-		tv.setText(ErrorText);
-
+        //create connect button and connect
         Button btnConnect = (Button) findViewById(R.id.ButtonConnect);
         if (btnConnect != null)
         {
-        		btnConnect.setOnClickListener(new OnClickListener() {
-        		public void onClick(View v) {
-        			String BhMacID = "00:07:80:9D:8A:E8";
-        			adapter = BluetoothAdapter.getDefaultAdapter();
-        			
-        			Set<BluetoothDevice> pairedDevices = adapter.getBondedDevices();
-        			
-        			if (pairedDevices.size() > 0) 
+        		btnConnect.setOnClickListener(new OnClickListener() 
+        		{
+        			public void onClick(View v)
         			{
-                        for (BluetoothDevice device : pairedDevices) 
-                        {
+        				/*String BhMacID = "00:07:80:9D:8A:E8";
+        				adapter = BluetoothAdapter.getDefaultAdapter();
+        			
+        				Set<BluetoothDevice> pairedDevices = adapter.getBondedDevices();
+        			
+        				if (pairedDevices.size() > 0) 
+        				{
+        					for (BluetoothDevice device : pairedDevices) 
+        					{
 	                        	if (device.getName().startsWith("BH")) 
 	                        	{
 	                        		BluetoothDevice btDevice = device;
 	                        		BhMacID = btDevice.getAddress();
 	                                break;
 	                        	}
-                        }                        
-        			}
+        					}                        
+        				}
+        				//BhMacID = btDevice.getAddress();
+        				BluetoothDevice Device = adapter.getRemoteDevice(BhMacID);
+        				String DeviceName = Device.getName();
+        				_bt = new BTClient(adapter, BhMacID);
+        				_NConnListener = new NewConnectedListener(Newhandler,Newhandler);
+        				_bt.addConnectedEventListener(_NConnListener);
         			
-        			//BhMacID = btDevice.getAddress();
-        			BluetoothDevice Device = adapter.getRemoteDevice(BhMacID);
-        			String DeviceName = Device.getName();
-        			_bt = new BTClient(adapter, BhMacID);
-        			_NConnListener = new NewConnectedListener(Newhandler,Newhandler);
-        			_bt.addConnectedEventListener(_NConnListener);
-        			
-        			TextView tv1 = (EditText)findViewById(R.id.labelRespRate);
-        			 tv1.setText("0.0");
+        				TextView tv1 = (EditText)findViewById(R.id.labelRespRate);
+        				tv1.setText("0.0");
         			 
-        			if(_bt.IsConnected())
-        			{
-        				_bt.start();
-        				TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
-        				String ErrorText  = "Connected to BioHarness "+DeviceName;
-						 tv.setText(ErrorText);
+        				//if the bioharness connects, switch to main menu
+        				if(_bt.IsConnected())*/
+        				if(true)
+        				{
+        					//_bt.start();
+        					//TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
+        					//String ErrorText  = "Connected to BioHarness "+DeviceName;
+        					//tv.setText(ErrorText);
+        					
+        					//switching to main menu
+        					setContentView(R.layout.main_menu);
+        			        spinnerTrack = (Spinner)findViewById(R.id.spinner1);
+       
+        			        //Initializing Sounds
+        			        layeringInit();
+        			        noiseInit();
+        			        
+        			        //Initializing BioHarnessController
+        			        bhController = new BioHarnessController();
+        			        
+        			        EditText t = (EditText)findViewById(R.id.labelRespRate);
+        			        t.setGravity(Gravity.CENTER);
+        			        
+        			        //initManualInputBox(); 
+        				}
+        				else
+        				{
+        					TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
+        					String ErrorText  = "Unable to Connect !";
+        					tv.setText(ErrorText);
+        				}
         			}
-        			else
-        			{
-        				TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
-        				String ErrorText  = "Unable to Connect !";
-						 tv.setText(ErrorText);
-        			}
-        		}
-        	});
-        }
-        //Obtaining the handle to act on the DISCONNECT button
-        Button btnDisconnect = (Button) findViewById(R.id.ButtonDisconnect);
-        if (btnDisconnect != null)
-        {
-        		btnDisconnect.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) { 
-					//Reset the global variables
-					TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
-					String ErrorText  = "Disconnected from BioHarness!";
-					tv.setText(ErrorText);
+        		});
+        	}
+	        //Sending a message to android that we are going to initiate a pairing request
+	        IntentFilter filter = new IntentFilter("android.bluetooth.device.action.PAIRING_REQUEST");
+	        //Registering a new BTBroadcast receiver from the Main Activity context with pairing request event
+	        this.getApplicationContext().registerReceiver(new BTBroadcastReceiver(), filter);
+	        //Registering the BTBondReceiver in the application that the status of the receiver has changed to Paired
+	        IntentFilter filter2 = new IntentFilter("android.bluetooth.device.action.BOND_STATE_CHANGED");
+	        this.getApplicationContext().registerReceiver(new BTBondReceiver(), filter2);
+	        
+	       	//Obtaining the handle to act on the CONNECT button
+	        TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
+			String ErrorText  = "Failed to connect!";
+			tv.setText(ErrorText);
+		}
 
-					//This disconnects listener from acting on received messages	
-					_bt.removeConnectedEventListener(_NConnListener);
-					//Close the communication with the device & throw an exception if failure
-					_bt.Close(); 
-				}
-        	});
-        }
         
-        //Initializing Sounds
-        layeringInit();
-        noiseInit();
-        
-        //Initializing SeekBars
-        initSeekBars();
-        
-        //Initializing BioHarnessController
-        bhController = new BioHarnessController();
-        
-        initManualInputBox(); 
-    }
+       
     
     @Override
     public void onPause(){
@@ -189,7 +173,7 @@ public class MainActivity extends Activity {
 	            		adjustAudio();
 	            }
 	            break;
-	        case R.id.radio_noise:
+	    		case R.id.radio_noise:
 	            if (checked)
 	            {
 	            		distortionType = DistortionType.WhiteNoise;
@@ -216,7 +200,7 @@ public class MainActivity extends Activity {
     }
     
     
-    private void initManualInputBox()
+    /*private void initManualInputBox()
     {
     		EditText textMessage = (EditText)findViewById(R.id.editText1);
         textMessage.addTextChangedListener(new TextWatcher(){
@@ -233,7 +217,7 @@ public class MainActivity extends Activity {
             public void beforeTextChanged(CharSequence s, int start, int count, int after){}
             public void onTextChanged(CharSequence s, int start, int before, int count){}
         });
-    }
+    }*/
     
     
     public void goToGraph(View view)
@@ -242,26 +226,6 @@ public class MainActivity extends Activity {
         startActivity(intent);
     }
     
-    private void initSeekBars(){
-    	
-    		SeekBar[] seekBars = new SeekBar[1];
-    		seekBars[0] = ((SeekBar) findViewById(R.id.seekBar1));
-    		
-    		initSeekBar(seekBars[0], 0);
-    }
-    
-    private void initSeekBar(SeekBar seekBar, final int index)
-    {
-    			seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener(){
-            @Override
-            public void onProgressChanged(SeekBar arg0, int seekPercentage, boolean arg2) {
-            		//float volume = (float)seekPercentage/100;
-            		//soundPool.setVolume(soundIds[index], volume, volume);
-            }
-			@Override public void onStartTrackingTouch(SeekBar seekBar) {	}
-			@Override public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-    }
     
     private void layeringInit(){
 	
