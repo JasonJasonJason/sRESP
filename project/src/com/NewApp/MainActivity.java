@@ -2,6 +2,8 @@ package com.NewApp;
 
 import android.app.Activity;
 import android.widget.Spinner;
+import android.media.MediaPlayer.OnCompletionListener;
+import android.media.MediaPlayer.OnSeekCompleteListener;
 import android.media.SoundPool;
 import android.media.AudioManager;
 import android.media.SoundPool.OnLoadCompleteListener;
@@ -15,6 +17,8 @@ import java.util.List;
 import java.util.Set;
 
 //import com.NewApp.android.R;
+
+
 
 
 import android.bluetooth.*;
@@ -52,8 +56,9 @@ public class MainActivity extends Activity {
 	MediaPlayer noiseSound;
 	MediaPlayer noise;
 	public Spinner spinnerTrack;
-
+	static int channelsReady = 0;
 	BioHarnessController bhController;
+	boolean started = false;
 	
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -114,12 +119,14 @@ public class MainActivity extends Activity {
         			        layeringInit();
         			        noiseInit();
         			        
+        			        initManualInputBox();
+        			        
         			        //Initializing BioHarnessController
         			        bhController = new BioHarnessController();
         			        
         			        EditText t = (EditText)findViewById(R.id.labelRespRate);
         			        t.setGravity(Gravity.CENTER);
-        			        
+        			        started = true;
         			        //initManualInputBox(); 
         				}
         				else
@@ -157,6 +164,20 @@ public class MainActivity extends Activity {
     			layeringPause();
     		else if (distortionType == DistortionType.WhiteNoise)
     			noisePause();
+    }
+    
+    @Override
+    public void onResume(){
+    		super.onResume();
+    		
+    		if(!started)
+	    		return;
+    		Log.d("Application", "onResume called");
+    		
+    		if(distortionType == DistortionType.Layering)
+    			layeringResume();
+    		else if (distortionType == DistortionType.WhiteNoise)
+    			noiseResume();
     }
     
     public void onRadioButtonClicked(View view) {
@@ -199,14 +220,40 @@ public class MainActivity extends Activity {
     		noiseSound.setVolume(0, 0);
     }
     
+    private void layeringResume(){
+    		adjustAudio();
+    }
     
-    /*private void initManualInputBox()
+    private void noiseResume(){
+    		adjustAudio();
+    }
+    
+    
+    public void playpause(View view)
     {
-    		EditText textMessage = (EditText)findViewById(R.id.editText1);
+    		ToggleButton btn = (ToggleButton)findViewById(R.id.toggleButton1);
+    		if(btn.isChecked())
+    		{
+    			if(distortionType == DistortionType.Layering)
+    				layeringPause();
+    			else
+    				noisePause();
+    		}
+    		else
+    		{
+    			adjustAudio();
+    		}
+    }
+    
+    
+    private void initManualInputBox()
+    {
+    		EditText textMessage = (EditText)findViewById(R.id.labelRespRate);
         textMessage.addTextChangedListener(new TextWatcher(){
         		@Override
             public void afterTextChanged(Editable s) {
         			try{
+        				Log.d("Respiration Rate", "Respiration Rate: " + s.toString());
         				handleNewRespirationRate(Float.parseFloat(s.toString()));
         			}
         			catch(Exception e)
@@ -217,36 +264,80 @@ public class MainActivity extends Activity {
             public void beforeTextChanged(CharSequence s, int start, int count, int after){}
             public void onTextChanged(CharSequence s, int start, int before, int count){}
         });
-    }*/
+    }
     
     
     public void goToGraph(View view)
     {
-    	Intent intent = new Intent(this, GraphActivity.class);
+    		Intent intent = new Intent(this, GraphActivity.class);
         startActivity(intent);
     }
     
     
     private void layeringInit(){
 	
-		mediaPlayers = new MediaPlayer[4];
-		mediaPlayers[0] = initMediaPlayer(R.raw.bass);
-		mediaPlayers[1] = initMediaPlayer(R.raw.drums);
-		mediaPlayers[2] = initMediaPlayer(R.raw.drums_layer2);
-		mediaPlayers[3] = initMediaPlayer(R.raw.plucks);
+		mediaPlayers = new MediaPlayer[12];
+		mediaPlayers[0] = initMediaPlayer(R.raw.kick_1);
+		mediaPlayers[1] = initMediaPlayer(R.raw.snare_2);
+		mediaPlayers[2] = initMediaPlayer(R.raw.overheads_3);
+		mediaPlayers[3] = initMediaPlayer(R.raw.tom_4);
+		mediaPlayers[4] = initMediaPlayer(R.raw.tom_5);
+		mediaPlayers[5] = initMediaPlayer(R.raw.bass_6);
+		mediaPlayers[6] = initMediaPlayer(R.raw.cello_11);
+		mediaPlayers[7] = initMediaPlayer(R.raw.cello_12);
+		mediaPlayers[8] = initMediaPlayer(R.raw.mandolin_9);
+		mediaPlayers[9] = initMediaPlayer(R.raw.mandolin_10);
+		mediaPlayers[10] = initMediaPlayer(R.raw.guitar_7);
+		mediaPlayers[11] = initMediaPlayer(R.raw.guitar_8);
 		
-		playChannels(new int[] {0,1,2});
+		replaySongs();
+		
+		mediaPlayers[0].setOnCompletionListener(new OnCompletionListener(){
+			@Override
+			public void onCompletion(MediaPlayer arg0) {
+				replaySongs();
+			}
+		});
+		
+		playChannels( channelArrayForRelaxLevel(4) );
     }
     
     private void noiseInit(){
-    		noiseSound = initMediaPlayer(R.raw.noise_track);
+    		noiseSound = initMediaPlayer(R.raw.all);
     		noise = initMediaPlayer(R.raw.white_noise);
+    		
+    		noiseSound.setLooping(true);
+    		noise.setLooping(true);
+    }
+    
+    private void startSongs()
+    {
+    		for(int i=0; i<mediaPlayers.length; i++)
+		{
+    			mediaPlayers[i].start();
+		}
+    }
+    
+    private void replaySongs()
+    {
+    		for(int i=0; i<mediaPlayers.length; i++)
+		{
+    			mediaPlayers[i].pause();
+		}
+		
+    		for(int i=0; i<mediaPlayers.length; i++)
+    		{
+    			mediaPlayers[i].seekTo(0);
+    		}
+    		startSongs();
+    		
+	    	Log.d("Audio", "Repeating layered audio");
     }
     
     private MediaPlayer initMediaPlayer(int songId)
     {
     		MediaPlayer mediaPlayer = MediaPlayer.create(getBaseContext(), songId);
-		mediaPlayer.setLooping(true);
+
 		mediaPlayer.setVolume(0,0);
 		mediaPlayer.start();
 		
@@ -306,23 +397,39 @@ public class MainActivity extends Activity {
     		switch(respirationRate)
 		{
 			case 0:
-			case 1:	playChannels( new int[] {0} ); break;
-			case 2:
-			case 3: playChannels( new int[] {0,1}); break;
-			case 4:  playChannels( new int[] {0,1,2}); break;
+			case 1:	playChannels( channelArrayForRelaxLevel(0) ); break;
+			case 2:	playChannels( channelArrayForRelaxLevel(1) ); break;
+			case 3:	playChannels( channelArrayForRelaxLevel(3) ); break; 
+			case 4:	playChannels( channelArrayForRelaxLevel(5) ); break;
 			case 5:
 			case 6:
-			case 7: playChannels( new int[] {0,1,2,3}); break;
-			case 8:
-			case 9: playChannels( new int[] {0,1,2}); break;
-			case 10:
-			case 11: playChannels( new int[] {0,2}); break;
-			case 12:
+			case 7: 	playChannels( channelArrayForRelaxLevel(6) ); break;
+			case 8:	playChannels( channelArrayForRelaxLevel(5) ); break;
+			case 9:	
+			case 10:playChannels( channelArrayForRelaxLevel(4) ); break;
+			case 11:playChannels( channelArrayForRelaxLevel(3) ); break;
+			case 12:playChannels( channelArrayForRelaxLevel(2) ); break;
 			case 13:
-			case 14:
+			case 14:playChannels( channelArrayForRelaxLevel(1) ); break;
 			case 15:
-			default:playChannels( new int[] {0}); break;
+			case 16:playChannels( channelArrayForRelaxLevel(0) ); break;
+			default:playChannels( channelArrayForRelaxLevel(0) ); break;
 		}
+    }
+    
+    private int[] channelArrayForRelaxLevel(int level)
+    {
+    		switch(level)
+    		{
+    			case 0: return new int[] {0,1};
+    			case 1: return new int[] {0,1,2,3};
+    			case 2: return new int[] {0,1,2,3,4,5};
+    			case 3: return new int[] {0,1,2,3,4,5,6};
+    			case 4: return new int[] {0,1,2,3,4,5,6,7};
+    			case 5: return new int[] {0,1,2,3,4,5,6,7,8,9};
+    			case 6: return new int[] {0,1,2,3,4,5,6,7,8,9,10,11};
+    		}
+    		return new int[] {};
     }
     
     private void adjustNoiseAudio(int respirationRate){
