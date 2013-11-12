@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@drawable/bg" >
+    android:background="@drawable/bg10" >
 
     <Spinner
         android:id="@+id/spinner1"
@@ -27,27 +27,6 @@
         android:layout_alignParentTop="true"
         android:layout_marginTop="20dp"
         android:text="                  Music Selection"
-        android:textSize="20sp" />
-
-    <EditText
-        android:id="@+id/labelRespRate"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/button1"
-        android:layout_alignParentBottom="true"
-        android:layout_alignRight="@+id/button1"
-        android:layout_marginBottom="53dp"
-        
-        android:inputType="text"
-        android:text="0" />
-
-    <TextView
-        android:id="@+id/RespirationRate"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/labelRespRate"
-        android:layout_alignParentLeft="true"
-        android:text="           Current Respiration Rate"
         android:textSize="20sp" />
 
     <RadioGroup
@@ -83,7 +62,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/radioGroup2"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="28dp"
         android:minWidth="80dp"
         android:onClick="playpause"
         android:text="ToggleButton"
@@ -94,10 +72,31 @@
         android:id="@+id/button1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/RespirationRate"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="38dp"
+        android:layout_marginBottom="21dp"
         android:onClick="goToGraph"
         android:text="Respiration Signal Graph" />
+
+    <EditText
+        android:id="@+id/labelRespRate"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/button1"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="22dp"
+        android:ems="10"
+        android:inputType="text"
+        android:text="0" />
+
+    <TextView
+        android:id="@+id/RespirationRate"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/labelRespRate"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="14dp"
+        android:text="           Current Respiration Rate"
+        android:textSize="20sp" />
 
 </RelativeLayout>
