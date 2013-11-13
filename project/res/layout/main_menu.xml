@@ -4,86 +4,13 @@
     android:layout_height="fill_parent"
     android:background="@drawable/bg10" >
 
-    <Spinner
-        android:id="@+id/spinner1"
-        android:layout_width="wrap_content"
-        android:layout_height="45dp"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/TextView01"
-        android:entries="@array/track_array" />
-
-    <RadioGroup
-        android:id="@+id/radioGroup1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/labelRespRate" >
-    </RadioGroup>
-
-    <TextView
-        android:id="@+id/TextView01"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="20dp"
-        android:text="                  Music Selection"
-        android:textSize="20sp" />
-
-    <RadioGroup
-        android:id="@+id/radioGroup2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/spinner1"
-        android:layout_marginTop="14dp"
-        android:layout_toRightOf="@+id/radioGroup1"
-        android:orientation="horizontal" >
-
-        <RadioButton
-            android:id="@+id/radio_layering"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_weight="0.43"
-            android:checked="true"
-            android:onClick="onRadioButtonClicked"
-            android:text="Layering" />
-
-        <RadioButton
-            android:id="@+id/radio_noise"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:onClick="onRadioButtonClicked"
-            android:text="Noise" />
-    </RadioGroup>
-
-    <ToggleButton
-        android:id="@+id/toggleButton1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/radioGroup2"
-        android:layout_centerHorizontal="true"
-        android:minWidth="80dp"
-        android:onClick="playpause"
-        android:text="ToggleButton"
-        android:textOff="Play"
-        android:textOn="Pause" />
-
-    <Button
-        android:id="@+id/button1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="21dp"
-        android:onClick="goToGraph"
-        android:text="Respiration Signal Graph" />
-
     <EditText
         android:id="@+id/labelRespRate"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/button1"
-        android:layout_centerHorizontal="true"
+        android:layout_alignLeft="@+id/button1"
+        android:layout_alignRight="@+id/button1"
         android:layout_marginBottom="22dp"
         android:ems="10"
         android:inputType="text"
@@ -96,7 +23,78 @@
         android:layout_above="@+id/labelRespRate"
         android:layout_alignParentLeft="true"
         android:layout_marginBottom="14dp"
-        android:text="           Current Respiration Rate"
+        android:text="         Current Respiration Rate"
         android:textSize="20sp" />
+
+    <RadioGroup
+        android:id="@+id/radioGroup1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="16dp"
+        android:orientation="horizontal" >
+        
+    <RadioButton
+        android:id="@+id/radio_layering"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/radioGroup1"
+        android:checked="true"
+        android:onClick="onRadioButtonClicked"
+        android:layout_marginTop="20dp"
+        android:text="Layering" />
+        
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="43dp"
+        android:onClick="goToGraph"
+        android:text="Respiration Signal Graph" />
+
+    <RadioButton
+        android:id="@+id/radio_noise"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/radioGroup1"
+        android:layout_toRightOf="@+id/toggleButton1"
+        android:onClick="onRadioButtonClicked"
+        android:text="Noise" />
+
+    <TextView
+        android:id="@+id/TextView01"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/radioGroup1"
+        android:text="                 Music Selection"
+        android:textSize="20sp" />
+
+    <Spinner
+        android:id="@+id/spinner1"
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/TextView01"
+        android:entries="@array/track_array" />
+
+    <ToggleButton
+        android:id="@+id/toggleButton1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/spinner1"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="14dp"
+        android:minWidth="80dp"
+        android:onClick="playpause"
+        android:text="ToggleButton"
+        android:textOff="Play"
+        android:textOn="Pause" />
 
 </RelativeLayout>

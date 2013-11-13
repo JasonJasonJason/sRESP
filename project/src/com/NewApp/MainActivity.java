@@ -43,11 +43,17 @@ enum DistortionType {
 	Layering
 }
 
+/*
+ * android:id="@+id/radio_noise"
+        android:id="@+id/radio_layering"
+        android:onClick="onRadioButtonClicked"
+ */
+
 
 public class MainActivity extends Activity {
     /** Called when the activity is first created. */
 	BluetoothAdapter adapter = null;
-	BTClient _bt;
+	BTClient _bt; 
 	ZephyrProtocol _protocol;
 	NewConnectedListener _NConnListener;
 	private final int RESPIRATION_RATE = 0x101;
@@ -248,7 +254,7 @@ public class MainActivity extends Activity {
     
     private void initManualInputBox()
     {
-    		EditText textMessage = (EditText)findViewById(R.id.labelRespRate);
+    	EditText textMessage = (EditText)findViewById(R.id.labelRespRate);
         textMessage.addTextChangedListener(new TextWatcher(){
         		@Override
             public void afterTextChanged(Editable s) {
