@@ -171,11 +171,11 @@ public class MainActivity extends Activity {
        
     
     @Override
-    public void onPause(){
+    public void onPause(){ 
     		super.onPause();
     		Log.d("Application", "onPause called");
     		
-    		if(distortionType == DistortionType.Layering)
+    		if(distortionType == DistortionType.Layering) 
     			layeringPause();
     		else if (distortionType == DistortionType.WhiteNoise)
     			noisePause();
@@ -305,11 +305,11 @@ public class MainActivity extends Activity {
 		mediaPlayers[10] = initMediaPlayer(R.raw.guitar_7);
 		mediaPlayers[11] = initMediaPlayer(R.raw.guitar_8);
 		
-		replaySongs();
+		replaySongs(); 
 		
 		mediaPlayers[0].setOnCompletionListener(new OnCompletionListener(){
 			@Override
-			public void onCompletion(MediaPlayer arg0) {
+			public void onCompletion(MediaPlayer arg0) { 
 				replaySongs();
 			}
 		});
