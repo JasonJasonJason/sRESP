@@ -68,13 +68,16 @@ public class MainActivity extends Activity {
         setContentView(R.layout.bh_connection);
         
         //create connect button and connect
-        Button btnConnect = (Button) findViewById(R.id.ButtonConnect);
+        final Button btnConnect = (Button) findViewById(R.id.ButtonConnect);
         if (btnConnect != null)
         {
         		btnConnect.setOnClickListener(new OnClickListener() 
         		{
         			public void onClick(View v)
         			{
+        				btnConnect.setPressed(true);
+        				TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
+    					tv.setText("Connecting...");
         				/*String BhMacID = "00:07:80:9D:8A:E8";
         				adapter = BluetoothAdapter.getDefaultAdapter();
         			
@@ -112,28 +115,34 @@ public class MainActivity extends Activity {
         					//tv.setText(ErrorText);
         					
         					//switching to main menu
-        					setContentView(R.layout.main_menu);
-        			        spinnerTrack = (Spinner)findViewById(R.id.spinner1);
-       
-        			        //Initializing Sounds
-        			        layeringInit();
-        			        noiseInit();
-        			        
-        			        initManualInputBox();
-        			        
-        			        //Initializing BioHarnessController
-        			        bhController = new BioHarnessController();
-        			        
-        			        EditText t = (EditText)findViewById(R.id.labelRespRate);
-        			        t.setGravity(Gravity.CENTER);
-        			        started = true;
-        			        //initManualInputBox(); 
+        					setContentView(R.layout.main_menu); 
+        					Thread t = new Thread() {
+        			            public void run() {
+        			            		
+                			        //spinnerTrack = (Spinner)findViewById(R.id.spinner1);
+               
+                			        //Initializing Sounds
+                			        layeringInit();
+                			        noiseInit();
+                			        
+                			        //initManualInputBox();
+                			        
+                			        //Initializing BioHarnessController
+                			        bhController = new BioHarnessController();
+                			        
+                			        //EditText t = (EditText)findViewById(R.id.labelRespRate);
+                			        //t.setGravity(Gravity.CENTER);
+                			        //started = true;
+        			            }
+        			        };
+        			        t.start();
+
         				}
         				else
         				{
-        					TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
-        					String ErrorText  = "Unable to Connect !";
-        					tv.setText(ErrorText);
+        					//TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
+        					//String ErrorText  = "Unable to Connect !";
+        					//tv.setText(ErrorText);
         				}
         			}
         		});
