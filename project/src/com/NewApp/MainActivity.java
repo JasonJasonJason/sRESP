@@ -1,26 +1,12 @@
 package com.NewApp;
 
+
 import android.app.Activity;
+import android.view.Gravity;
 import android.widget.Spinner;
 import android.media.MediaPlayer.OnCompletionListener;
-import android.media.MediaPlayer.OnSeekCompleteListener;
-import android.media.SoundPool;
-import android.media.AudioManager;
-import android.media.SoundPool.OnLoadCompleteListener;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-
-//import com.NewApp.android.R;
-
-
-
-
 import android.bluetooth.*;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -29,25 +15,16 @@ import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
 import android.text.Editable;
 import android.text.TextWatcher;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Set;
+
 import zephyr.android.BioHarnessBT.*;
-
-
-enum DistortionType {
-	WhiteNoise,
-	Layering
-}
-
-/*
- * android:id="@+id/radio_noise"
-        android:id="@+id/radio_layering"
-        android:onClick="onRadioButtonClicked"
- */
 
 
 public class MainActivity extends Activity {
@@ -84,72 +61,14 @@ public class MainActivity extends Activity {
         				btnConnect.setPressed(true);
         				TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
     					tv.setText("Connecting...");
-        				/*String BhMacID = "00:07:80:9D:8A:E8";
-        				adapter = BluetoothAdapter.getDefaultAdapter();
-        			
-        				Set<BluetoothDevice> pairedDevices = adapter.getBondedDevices();
-        			
-        				if (pairedDevices.size() > 0) 
-        				{
-        					for (BluetoothDevice device : pairedDevices) 
-        					{
-	                        	if (device.getName().startsWith("BH")) 
-	                        	{
-	                        		BluetoothDevice btDevice = device;
-	                        		BhMacID = btDevice.getAddress();
-	                                break;
-	                        	}
-        					}                        
-        				}
-        				//BhMacID = btDevice.getAddress();
-        				BluetoothDevice Device = adapter.getRemoteDevice(BhMacID);
-        				String DeviceName = Device.getName();
-        				_bt = new BTClient(adapter, BhMacID);
-        				_NConnListener = new NewConnectedListener(Newhandler,Newhandler);
-        				_bt.addConnectedEventListener(_NConnListener);
-        			
-        				TextView tv1 = (EditText)findViewById(R.id.labelRespRate);
-        				tv1.setText("0.0");
-        			 
-        				//if the bioharness connects, switch to main menu
-        				if(_bt.IsConnected())*/
-        				if(true)
-        				{
-        					//_bt.start();
-        					//TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
-        					//String ErrorText  = "Connected to BioHarness "+DeviceName;
-        					//tv.setText(ErrorText);
-        					
-        					//switching to main menu
-        					setContentView(R.layout.main_menu); 
-        					Thread t = new Thread() {
-        			            public void run() {
-        			            		
-                			        //spinnerTrack = (Spinner)findViewById(R.id.spinner1);
-               
-                			        //Initializing Sounds
-                			        layeringInit();
-                			        noiseInit();
-                			        
-                			        //initManualInputBox();
-                			        
-                			        //Initializing BioHarnessController
-                			        bhController = new BioHarnessController();
-                			        
-                			        //EditText t = (EditText)findViewById(R.id.labelRespRate);
-                			        //t.setGravity(Gravity.CENTER);
-                			        //started = true;
-        			            }
-        			        };
-        			        t.start();
 
-        				}
-        				else
-        				{
-        					//TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
-        					//String ErrorText  = "Unable to Connect !";
-        					//tv.setText(ErrorText);
-        				}
+                        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+                        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+                            initMainScreen();
+                        }
+                        else{
+                            initBioHarnessConnection();
+                        }
         			}
         		});
         	}
@@ -163,7 +82,7 @@ public class MainActivity extends Activity {
 	        
 	       	//Obtaining the handle to act on the CONNECT button
 	        TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
-			String ErrorText  = "Failed to connect!";
+			String ErrorText  = "Ready to connect";
 			tv.setText(ErrorText);
 		}
 
@@ -193,6 +112,74 @@ public class MainActivity extends Activity {
     			layeringResume();
     		else if (distortionType == DistortionType.WhiteNoise)
     			noiseResume();
+    }
+
+
+    private void initMainScreen(){
+
+        setContentView(R.layout.main_menu);
+
+        Thread t = new Thread() {
+            public void run() {
+                //spinnerTrack = (Spinner)findViewById(R.id.spinner1);
+                layeringInit();
+                noiseInit();
+
+                //initManualInputBox();
+
+                //Initializing BioHarnessController
+                bhController = new BioHarnessController();
+
+                EditText t = (EditText)findViewById(R.id.labelRespRate);
+                t.setGravity(Gravity.CENTER);
+                started = true;
+            }
+        };
+        t.start();
+    }
+
+
+    private void initBioHarnessConnection(){
+
+        String BhMacID = "00:07:80:9D:8A:E8";
+        adapter = BluetoothAdapter.getDefaultAdapter();
+
+        Set<BluetoothDevice> pairedDevices = adapter.getBondedDevices();
+
+        if (pairedDevices.size() > 0)
+        {
+            for (BluetoothDevice device : pairedDevices)
+            {
+                if (device.getName().startsWith("BH"))
+                {
+                    BluetoothDevice btDevice = device;
+                    BhMacID = btDevice.getAddress();
+                    break;
+                }
+            }
+        }
+        //BhMacID = btDevice.getAddress();
+        BluetoothDevice Device = adapter.getRemoteDevice(BhMacID);
+        String DeviceName = Device.getName();
+        _bt = new BTClient(adapter, BhMacID);
+        _NConnListener = new NewConnectedListener(Newhandler,Newhandler);
+        _bt.addConnectedEventListener(_NConnListener);
+
+        TextView tv1 = (EditText)findViewById(R.id.labelRespRate);
+        tv1.setText("0.0");
+
+        if(_bt.IsConnected())
+        {
+            _bt.start();
+            TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
+            tv.setText("Connected to BioHarness "+DeviceName);
+            initMainScreen();
+        }
+        else
+        {
+            TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
+            tv.setText("Unable to connect!");
+        }
     }
     
     public void onRadioButtonClicked(View view) {

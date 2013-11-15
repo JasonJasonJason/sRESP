@@ -1,5 +1,11 @@
 package com.NewApp;
 
+
+enum DistortionType {
+    WhiteNoise,
+    Layering
+}
+
 public class BioHarnessController {
 	
 	//instance variables
