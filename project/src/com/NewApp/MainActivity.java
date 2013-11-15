@@ -3,9 +3,12 @@ package com.NewApp;
 
 import android.app.Activity;
 import android.database.Cursor;
+import android.graphics.PixelFormat;
 import android.provider.MediaStore;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Spinner;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer;
@@ -30,14 +33,14 @@ import java.util.Set;
 import zephyr.android.BioHarnessBT.*;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements MediaController.MediaPlayerControl {
     /** Called when the activity is first created. */
 	BluetoothAdapter adapter = null;
 	BTClient _bt; 
 	ZephyrProtocol _protocol;
 	NewConnectedListener _NConnListener;
 	private final int RESPIRATION_RATE = 0x101;
-	DistortionType distortionType = DistortionType.Layering;
+	DistortionType distortionType = DistortionType.WhiteNoise;
 	MediaPlayer[] mediaPlayers;
 	MediaPlayer noiseSound;
 	MediaPlayer noise;
@@ -56,6 +59,10 @@ public class MainActivity extends Activity {
     private int currentSongNumber;
 
 
+    private MediaController mMediaController;
+    private boolean goToGraphFlag;
+
+
     public void onCreate(Bundle savedInstanceState)
 	{
         super.onCreate(savedInstanceState);
@@ -71,17 +78,17 @@ public class MainActivity extends Activity {
         		{
         			public void onClick(View v)
         			{
-        				btnConnect.setPressed(true);
-        				TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
-    					tv.setText("Connecting...");
+                    btnConnect.setPressed(true);
+                    TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
+                    tv.setText("Connecting...");
 
-                        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-                        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
-                            initMainScreen();
-                        }
-                        else{
-                            initBioHarnessConnection();
-                        }
+                    BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+                    if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+                        initMainScreen();
+                    }
+                    else{
+                        initBioHarnessConnection();
+                    }
         			}
         		});
         	}
@@ -104,27 +111,34 @@ public class MainActivity extends Activity {
     
     @Override
     public void onPause(){ 
-    		super.onPause();
-    		Log.d("Application", "onPause called");
-    		
-    		if(distortionType == DistortionType.Layering) 
-    			layeringPause();
-    		else if (distortionType == DistortionType.WhiteNoise)
-    			noisePause();
+        super.onPause();
+
+        if(goToGraphFlag)
+        {
+            goToGraphFlag = false;
+            return;
+        }
+
+        Log.d("Application", "onPause called");
+
+        if(distortionType == DistortionType.Layering)
+            layeringPause();
+        else if (distortionType == DistortionType.WhiteNoise)
+            noisePause();
     }
     
     @Override
     public void onResume(){
-    		super.onResume();
-    		
-    		if(!started)
-	    		return;
-    		Log.d("Application", "onResume called");
-    		
-    		if(distortionType == DistortionType.Layering)
-    			layeringResume();
-    		else if (distortionType == DistortionType.WhiteNoise)
-    			noiseResume();
+        super.onResume();
+
+        if(!started)
+            return;
+        Log.d("Application", "onResume called");
+
+        if(distortionType == DistortionType.Layering)
+            layeringResume();
+        else if (distortionType == DistortionType.WhiteNoise)
+            noiseResume();
     }
 
 
@@ -134,26 +148,25 @@ public class MainActivity extends Activity {
         
         EditText textBox = (EditText)findViewById(R.id.labelRespRate);
         textBox.setGravity(Gravity.CENTER);
+        mMediaPlayer = new MediaPlayer();
+        initMediaController();
         init_phone_music_grid();
-        
+
         Thread t = new Thread() {
             public void run() {
-                //spinnerTrack = (Spinner)findViewById(R.id.spinner1);
-                layeringInit();
-                noiseInit();
+            //spinnerTrack = (Spinner)findViewById(R.id.spinner1);
+            layeringInit();
+            noiseInit();
 
-                initManualInputBox();
+            initManualInputBox();
 
-                //Initializing BioHarnessController
-                bhController = new BioHarnessController();
+            //Initializing BioHarnessController
+            bhController = new BioHarnessController();
 
-                started = true;
-
-
+            started = true;
             }
         };
         t.start();
-
     }
 
 
@@ -169,17 +182,96 @@ public class MainActivity extends Activity {
         count = musiccursor.getCount();
         musiclist = (ListView) findViewById(R.id.PhoneMusicList);
         musiclist.setAdapter(new MusicAdapter(getApplicationContext()));
-
         musiclist.setOnItemClickListener(musicgridlistener);
-        mMediaPlayer = new MediaPlayer();
+        mMediaPlayer.setOnCompletionListener(new OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                Log.d("Playing song...", "Playing song again");
+                playSong(currentSongNumber+1);
+            }
+        });
     }
 
-    private AdapterView.OnItemClickListener musicgridlistener = new AdapterView.OnItemClickListener() {
+    private ListView.OnItemClickListener musicgridlistener = new ListView.OnItemClickListener() {
         public void onItemClick(AdapterView parent, View v, int position,
                                 long id) {
+            mMediaController.setFocusable(false);
+            mMediaController.setFocusableInTouchMode(false);
+            mMediaController.show();
+            musiclist.setFocusable(true);
             playSong(position);
+
         }
     };
+
+    @Override
+    public boolean canPause() {
+        return true;
+    }
+
+    @Override
+    public boolean canSeekBackward() {
+        return false;
+    }
+
+    @Override
+    public boolean canSeekForward() {
+        return false;
+    }
+
+    @Override
+    public int getAudioSessionId() {
+        return 0;
+    }
+
+    @Override
+    public int getBufferPercentage() {
+        int percentage = (mMediaPlayer.getCurrentPosition() * 100) / mMediaPlayer.getDuration();
+        return percentage;
+    }
+
+    @Override
+    public int getCurrentPosition() {
+        return mMediaPlayer.getCurrentPosition();
+    }
+
+    @Override
+    public int getDuration() {
+        return mMediaPlayer.getDuration();
+    }
+
+    @Override
+    public boolean isPlaying() {
+        return mMediaPlayer.isPlaying();
+    }
+
+    @Override
+    public void pause() {
+        if(mMediaPlayer.isPlaying())
+            mMediaPlayer.pause();
+
+        if(noise.isPlaying())
+            noise.pause();
+    }
+
+    @Override
+    public void seekTo(int pos) {
+        mMediaPlayer.seekTo(pos);
+    }
+
+    @Override
+    public void start() {
+        mMediaPlayer.start();
+        noise.start();
+        noise.setLooping(true);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        mMediaController.show();
+        return false;
+    }
+
 
     public class MusicAdapter extends BaseAdapter {
         private Context mContext;
@@ -205,14 +297,11 @@ public class MainActivity extends Activity {
             TextView tv = new TextView(mContext.getApplicationContext());
             String id = null;
             if (convertView == null) {
+                musiccursor.moveToPosition(position);
                 music_column_index = musiccursor
                         .getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME);
-                musiccursor.moveToPosition(position);
                 id = musiccursor.getString(music_column_index);
-                music_column_index = musiccursor
-                        .getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE);
-                musiccursor.moveToPosition(position);
-                id += " Size(KB):" + musiccursor.getString(music_column_index);
+                Log.d("Display name", "Display name: " + id);
                 tv.setText(id);
             } else
                 tv = (TextView) convertView;
@@ -223,30 +312,33 @@ public class MainActivity extends Activity {
     private void playSong(int songNumber)
     {
         System.gc();
+        currentSongNumber = songNumber;
+        if(currentSongNumber == musiccursor.getCount())
+            currentSongNumber = 0;
+
         music_column_index = musiccursor
                 .getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
         musiccursor.moveToPosition(songNumber);
-        currentSongNumber = songNumber;
         String filename = musiccursor.getString(music_column_index);
 
         try {
-            if (mMediaPlayer.isPlaying()) {
-                mMediaPlayer.reset();
-            }
+            if (mMediaPlayer.isPlaying())
+                mMediaPlayer.stop();
+            mMediaPlayer.reset();
             mMediaPlayer.setDataSource(filename);
             mMediaPlayer.prepare();
             mMediaPlayer.start();
-            mMediaPlayer.setOnCompletionListener(new OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mediaPlayer) {
-                    playSong(currentSongNumber+1);
-                }
-            });
+            noise.start();
         } catch (Exception e) {
         }
     }
 
-
+    private void initMediaController(){
+        mMediaController = new MediaController(this);
+        mMediaController.setMediaPlayer(this);
+        mMediaController.setAnchorView(findViewById(R.id.audioView));
+        mMediaController.show(10);
+    }
 
 
     private void initBioHarnessConnection(){
@@ -297,7 +389,7 @@ public class MainActivity extends Activity {
 	    boolean checked = ((RadioButton) view).isChecked();
 	    
 	    // Check which radio button was clicked
-	    switch(view.getId()) {
+	    /*switch(view.getId()) {
 	    		case R.id.radio_layering:
 	            if (checked)
 	            {
@@ -314,47 +406,30 @@ public class MainActivity extends Activity {
 	            		adjustAudio();
 	            }
 	            break;
-	    }
+	    }*/
 	}
     
     
     private void layeringPause(){
     		
-    		for(int i=0; i<mediaPlayers.length; i++)
-    		{
-    			stopChannel(i);
-    		}
+        for(int i=0; i<mediaPlayers.length; i++)
+        {
+            stopChannel(i);
+        }
     }
     
     private void noisePause(){
     		
-    		noise.setVolume(0, 0);
-    		noiseSound.setVolume(0, 0);
+        noise.pause();
+        mMediaPlayer.pause();
     }
     
     private void layeringResume(){
-    		adjustAudio();
+        adjustAudio();
     }
-    
+
     private void noiseResume(){
-    		adjustAudio();
-    }
-    
-    
-    public void playpause(View view)
-    {
-    		ToggleButton btn = (ToggleButton)findViewById(R.id.toggleButton1);
-    		if(btn.isChecked())
-    		{
-    			if(distortionType == DistortionType.Layering)
-    				layeringPause();
-    			else
-    				noisePause();
-    		}
-    		else
-    		{
-    			adjustAudio();
-    		}
+        adjustAudio();
     }
     
     
@@ -381,14 +456,15 @@ public class MainActivity extends Activity {
     
     public void goToGraph(View view)
     {
-    		Intent intent = new Intent(this, GraphActivity.class);
+        goToGraphFlag = true;
+        Intent intent = new Intent(this, GraphActivity.class);
         startActivity(intent);
     }
     
     
     private void layeringInit(){
 	
-		mediaPlayers = new MediaPlayer[12];
+		/*mediaPlayers = new MediaPlayer[12];
 		mediaPlayers[0] = initMediaPlayer(R.raw.kick_1);
 		mediaPlayers[1] = initMediaPlayer(R.raw.snare_2);
 		mediaPlayers[2] = initMediaPlayer(R.raw.overheads_3);
@@ -411,44 +487,41 @@ public class MainActivity extends Activity {
 			}
 		});
 		
-		playChannels( channelArrayForRelaxLevel(4) );
+		playChannels( channelArrayForRelaxLevel(4) );*/
     }
     
     private void noiseInit(){
-    		noiseSound = initMediaPlayer(R.raw.all);
-    		noise = initMediaPlayer(R.raw.white_noise);
-    		
-    		noiseSound.setLooping(true);
-    		noise.setLooping(true);
+        noise = initMediaPlayer(R.raw.white_noise);
+        noise.setLooping(true);
     }
     
     private void startSongs()
     {
-    		for(int i=0; i<mediaPlayers.length; i++)
+        for(int i=0; i<mediaPlayers.length; i++)
 		{
-    			mediaPlayers[i].start();
+            mediaPlayers[i].start();
 		}
     }
     
     private void replaySongs()
     {
-    		for(int i=0; i<mediaPlayers.length; i++)
+        for(int i=0; i<mediaPlayers.length; i++)
 		{
-    			mediaPlayers[i].pause();
+            mediaPlayers[i].pause();
 		}
-		
-    		for(int i=0; i<mediaPlayers.length; i++)
-    		{
-    			mediaPlayers[i].seekTo(0);
-    		}
-    		startSongs();
-    		
-	    	Log.d("Audio", "Repeating layered audio");
+
+        for(int i=0; i<mediaPlayers.length; i++)
+        {
+            mediaPlayers[i].seekTo(0);
+        }
+        startSongs();
+
+        Log.d("Audio", "Repeating layered audio");
     }
     
     private MediaPlayer initMediaPlayer(int songId)
     {
-    		MediaPlayer mediaPlayer = MediaPlayer.create(getBaseContext(), songId);
+        MediaPlayer mediaPlayer = MediaPlayer.create(getBaseContext(), songId);
 
 		mediaPlayer.setVolume(0,0);
 		mediaPlayer.start();
@@ -458,55 +531,60 @@ public class MainActivity extends Activity {
     
     private void startChannel(int channel)
     {
-    		Log.d("Audio", "Starting audio channel #" + channel);
-    		mediaPlayers[channel].setVolume(1,1);
+        Log.d("Audio", "Starting audio channel #" + channel);
+        mediaPlayers[channel].setVolume(1,1);
     }
     
     
     private void stopChannel(int channel)
     {
-    		Log.d("Audio", "Stopping audio channel #" + channel);
-    		mediaPlayers[channel].setVolume(0,0);
+        Log.d("Audio", "Stopping audio channel #" + channel);
+        mediaPlayers[channel].setVolume(0,0);
     }
     
     
     private void playChannels(int[] channels){
     	
-    		for(int channel=0; channel<mediaPlayers.length; channel++)
-    		{
-    			if(arrayContains(channels, channel))
-    				startChannel(channel);
-    			else
-    				stopChannel(channel);
-    		}
+        for(int channel=0; channel<mediaPlayers.length; channel++)
+        {
+            if(arrayContains(channels, channel))
+                startChannel(channel);
+            else
+                stopChannel(channel);
+        }
     }
     
     private boolean arrayContains(int[] arr, int item)
     {
-    		for(int i=0; i<arr.length; i++)
-    			if(arr[i] == item)
-    				return true;
-    		return false;
+        for(int i=0; i<arr.length; i++)
+            if(arr[i] == item)
+                return true;
+        return false;
     }
     
     private void setVolume(float d)
     {
-    		noise.setVolume(d, d);
+        noise.setVolume(d, d);
     }
     
     
     private void adjustAudio()
     {
-    		int respirationRate = (int) Math.floor(bhController.getRespirationRate());
-    		if(distortionType == DistortionType.Layering)
-    			adjustLayeringAudio(respirationRate);
-    		else if (distortionType == DistortionType.WhiteNoise)
-    			adjustNoiseAudio(respirationRate);
+        Log.d("Audio", "Adjusting audio");
+        if(noise.isPlaying())
+            Log.d("Audio", "noise is playing");
+        else
+            Log.d("Audio", "noise is NOT playing");
+        int respirationRate = (int) Math.floor(bhController.getRespirationRate());
+        if(distortionType == DistortionType.Layering)
+            adjustLayeringAudio(respirationRate);
+        else if (distortionType == DistortionType.WhiteNoise)
+            adjustNoiseAudio(respirationRate);
     }
     
     private void adjustLayeringAudio(int respirationRate){
     	
-    		switch(respirationRate)
+        switch(respirationRate)
 		{
 			case 0:
 			case 1:	playChannels( channelArrayForRelaxLevel(0) ); break;
@@ -515,7 +593,7 @@ public class MainActivity extends Activity {
 			case 4:	playChannels( channelArrayForRelaxLevel(5) ); break;
 			case 5:
 			case 6:
-			case 7: 	playChannels( channelArrayForRelaxLevel(6) ); break;
+			case 7: playChannels( channelArrayForRelaxLevel(6) ); break;
 			case 8:	playChannels( channelArrayForRelaxLevel(5) ); break;
 			case 9:	
 			case 10:playChannels( channelArrayForRelaxLevel(4) ); break;
@@ -531,23 +609,22 @@ public class MainActivity extends Activity {
     
     private int[] channelArrayForRelaxLevel(int level)
     {
-    		switch(level)
-    		{
-    			case 0: return new int[] {0,1};
-    			case 1: return new int[] {0,1,2,3};
-    			case 2: return new int[] {0,1,2,3,4,5};
-    			case 3: return new int[] {0,1,2,3,4,5,6};
-    			case 4: return new int[] {0,1,2,3,4,5,6,7};
-    			case 5: return new int[] {0,1,2,3,4,5,6,7,8,9};
-    			case 6: return new int[] {0,1,2,3,4,5,6,7,8,9,10,11};
-    		}
-    		return new int[] {};
+        switch(level)
+        {
+            case 0: return new int[] {0,1};
+            case 1: return new int[] {0,1,2,3};
+            case 2: return new int[] {0,1,2,3,4,5};
+            case 3: return new int[] {0,1,2,3,4,5,6};
+            case 4: return new int[] {0,1,2,3,4,5,6,7};
+            case 5: return new int[] {0,1,2,3,4,5,6,7,8,9};
+            case 6: return new int[] {0,1,2,3,4,5,6,7,8,9,10,11};
+        }
+        return new int[] {};
     }
     
     private void adjustNoiseAudio(int respirationRate){
-    	
-    		noiseSound.setVolume(1, 1);
-    		switch(respirationRate)
+
+        switch(respirationRate)
 		{
 			case 0:
 			case 1: setVolume(0.16f); break;
@@ -572,7 +649,7 @@ public class MainActivity extends Activity {
     
     private void handleNewRespirationRate(float respirationRate)
     {
-    		Log.d("Respiration Rate", "Respiration Rate: " + respirationRate);
+        Log.d("Respiration Rate", "Respiration Rate: " + respirationRate);
         ((sRESPApplication) getApplication()).setRespirationRate(respirationRate);
 	
 		float previousRespirationRate = bhController.getRespirationRate();

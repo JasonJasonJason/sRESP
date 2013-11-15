@@ -1,109 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@drawable/bg10" >
+    android:orientation="vertical"
+    android:background="@drawable/bg10">
 
-    <EditText
-        android:id="@+id/labelRespRate"
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/button1"
-        android:layout_alignLeft="@+id/button1"
-        android:layout_alignRight="@+id/button1"
-        android:layout_marginBottom="22dp"
-        android:ems="10"
-        android:inputType="text"
-        android:text="0" />
+        android:layout_height="0dip"
+        android:layout_weight="60">
 
-    <TextView
-        android:id="@+id/RespirationRate"
+        <ListView
+            android:id="@+id/PhoneMusicList"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:drawSelectorOnTop="true"
+            android:descendantFocusability="blocksDescendants"/>
+
+    </LinearLayout>
+
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/labelRespRate"
-        android:layout_alignParentLeft="true"
-        android:layout_marginBottom="14dp"
-        android:text="         Current Respiration Rate"
-        android:textSize="20sp" />
+        android:layout_height="0dip"
+        android:layout_weight="40">
 
-    <RadioGroup
-        android:id="@+id/radioGroup1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="16dp"
-        android:orientation="horizontal" >
-        
-        <RadioButton
-            android:id="@+id/radio_layering"
+        <TextView
+            android:id="@+id/RespirationRate"
+            android:layout_width="fill_parent"
+            android:layout_height="30dp"
+            android:textSize="18sp"
+            android:gravity="center"
+            android:text="Current Respiration Rate"/>
+
+        <EditText
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:ems="10"
+            android:id="@+id/labelRespRate"
+            android:text="0"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal" />
+
+
+        <Button
+            android:id="@+id/button1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_toRightOf="@+id/radioGroup1"
-            android:checked="true"
-            android:onClick="onRadioButtonClicked"
-            android:layout_marginTop="20dp"
-            android:text="Layering" />
-
-        <RadioButton
-            android:id="@+id/radio_noise"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/radioGroup1"
-            android:layout_toRightOf="@+id/toggleButton1"
-            android:onClick="onRadioButtonClicked"
-            android:text="Noise"
-            android:layout_marginTop="20dp"
-            android:layout_marginLeft="50dp"
-            android:checked="false" />
-        
-    </RadioGroup>
-
-    <ListView
-        android:id="@+id/PhoneMusicList"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
-    <Button
-        android:id="@+id/button1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="43dp"
-        android:onClick="goToGraph"
-        android:text="Respiration Signal Graph" />
-
-    <TextView
-        android:id="@+id/TextView01"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/radioGroup1"
-        android:text="                 Music Selection"
-        android:textSize="20sp" />
-
-    <Spinner
-        android:id="@+id/spinner1"
-        android:layout_width="wrap_content"
-        android:layout_height="45dp"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/TextView01"
-        android:entries="@array/track_array" />
-
-    <ToggleButton
-        android:id="@+id/toggleButton1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/spinner1"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="14dp"
-        android:minWidth="80dp"
-        android:onClick="playpause"
-        android:text="ToggleButton"
-        android:textOff="Play"
-        android:textOn="Pause" />
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="8dp"
+            android:onClick="goToGraph"
+            android:text="Respiration Signal Graph"
+            android:layout_gravity="center_horizontal" />
 
 
-</RelativeLayout>
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="100dp"
+            android:id="@+id/audioView"
+            android:layout_marginTop="22dp"
+            android:drawSelectorOnTop="false"
+            android:background="#222222">
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
