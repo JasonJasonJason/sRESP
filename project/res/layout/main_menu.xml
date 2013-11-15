@@ -54,9 +54,16 @@
             android:layout_toRightOf="@+id/toggleButton1"
             android:onClick="onRadioButtonClicked"
             android:text="Noise"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="50dp"
             android:checked="false" />
         
     </RadioGroup>
+
+    <ListView
+        android:id="@+id/PhoneMusicList"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
     <Button
         android:id="@+id/button1"
@@ -97,5 +104,6 @@
         android:text="ToggleButton"
         android:textOff="Play"
         android:textOn="Pause" />
+
 
 </RelativeLayout>

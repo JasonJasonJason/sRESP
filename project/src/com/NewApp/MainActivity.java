@@ -2,7 +2,10 @@ package com.NewApp;
 
 
 import android.app.Activity;
+import android.database.Cursor;
+import android.provider.MediaStore;
 import android.view.Gravity;
+import android.view.ViewGroup;
 import android.widget.Spinner;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer;
@@ -42,8 +45,18 @@ public class MainActivity extends Activity {
 	static int channelsReady = 0;
 	BioHarnessController bhController;
 	boolean started = false;
-	
-	public void onCreate(Bundle savedInstanceState)
+
+
+
+    ListView musiclist;
+    Cursor musiccursor;
+    int music_column_index;
+    int count;
+    MediaPlayer mMediaPlayer;
+    private int currentSongNumber;
+
+
+    public void onCreate(Bundle savedInstanceState)
 	{
         super.onCreate(savedInstanceState);
         Log.d("Application", "onCreate");   
@@ -121,6 +134,7 @@ public class MainActivity extends Activity {
         
         EditText textBox = (EditText)findViewById(R.id.labelRespRate);
         textBox.setGravity(Gravity.CENTER);
+        init_phone_music_grid();
         
         Thread t = new Thread() {
             public void run() {
@@ -134,10 +148,105 @@ public class MainActivity extends Activity {
                 bhController = new BioHarnessController();
 
                 started = true;
+
+
             }
         };
         t.start();
+
     }
+
+
+
+    private void init_phone_music_grid() {
+        System.gc();
+        String[] proj = { MediaStore.Audio.Media._ID,
+                MediaStore.Audio.Media.DATA,
+                MediaStore.Audio.Media.DISPLAY_NAME,
+                MediaStore.Video.Media.SIZE };
+        musiccursor = managedQuery(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                proj, null, null, null);
+        count = musiccursor.getCount();
+        musiclist = (ListView) findViewById(R.id.PhoneMusicList);
+        musiclist.setAdapter(new MusicAdapter(getApplicationContext()));
+
+        musiclist.setOnItemClickListener(musicgridlistener);
+        mMediaPlayer = new MediaPlayer();
+    }
+
+    private AdapterView.OnItemClickListener musicgridlistener = new AdapterView.OnItemClickListener() {
+        public void onItemClick(AdapterView parent, View v, int position,
+                                long id) {
+            playSong(position);
+        }
+    };
+
+    public class MusicAdapter extends BaseAdapter {
+        private Context mContext;
+
+        public MusicAdapter(Context c) {
+            mContext = c;
+        }
+
+        public int getCount() {
+            return count;
+        }
+
+        public Object getItem(int position) {
+            return position;
+        }
+
+        public long getItemId(int position) {
+            return position;
+        }
+
+        public View getView(int position, View convertView, ViewGroup parent) {
+            System.gc();
+            TextView tv = new TextView(mContext.getApplicationContext());
+            String id = null;
+            if (convertView == null) {
+                music_column_index = musiccursor
+                        .getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME);
+                musiccursor.moveToPosition(position);
+                id = musiccursor.getString(music_column_index);
+                music_column_index = musiccursor
+                        .getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE);
+                musiccursor.moveToPosition(position);
+                id += " Size(KB):" + musiccursor.getString(music_column_index);
+                tv.setText(id);
+            } else
+                tv = (TextView) convertView;
+            return tv;
+        }
+    }
+
+    private void playSong(int songNumber)
+    {
+        System.gc();
+        music_column_index = musiccursor
+                .getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
+        musiccursor.moveToPosition(songNumber);
+        currentSongNumber = songNumber;
+        String filename = musiccursor.getString(music_column_index);
+
+        try {
+            if (mMediaPlayer.isPlaying()) {
+                mMediaPlayer.reset();
+            }
+            mMediaPlayer.setDataSource(filename);
+            mMediaPlayer.prepare();
+            mMediaPlayer.start();
+            mMediaPlayer.setOnCompletionListener(new OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mediaPlayer) {
+                    playSong(currentSongNumber+1);
+                }
+            });
+        } catch (Exception e) {
+        }
+    }
+
+
 
 
     private void initBioHarnessConnection(){
@@ -441,22 +550,22 @@ public class MainActivity extends Activity {
     		switch(respirationRate)
 		{
 			case 0:
-			case 1: setVolume(0.22f); break;
-			case 2:	setVolume(0.16f); break;
-			case 3: setVolume(0.1f); break;
+			case 1: setVolume(0.16f); break;
+			case 2:	setVolume(0.12f); break;
+			case 3: setVolume(0.08f); break;
 			case 4: setVolume(0.04f); break;
 			case 5:
 			case 6:
 			case 7: setVolume(0f); break;
-			case 8: setVolume(0.04f); break;
-			case 9: setVolume(0.08f); break;
-			case 10: setVolume(0.12f); break;
-			case 11: setVolume(0.16f); break;
-			case 12: setVolume(0.2f); break;
-			case 13: setVolume(0.24f); break;
-			case 14: setVolume(0.28f);break;
-			case 15:
-			default: setVolume(0.3f); break;
+			case 8: setVolume(0.02f); break;
+			case 9: setVolume(0.04f); break;
+			case 10: setVolume(0.06f); break;
+			case 11: setVolume(0.08f); break;
+			case 12: setVolume(0.11f); break;
+			case 13: setVolume(0.14f); break;
+			case 14: setVolume(0.17f);break;
+            case 15: setVolume(0.20f);break;
+			default: setVolume(0.23f); break;
 		}
     }
     
