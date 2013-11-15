@@ -31,13 +31,21 @@
         android:textSize="20sp" />
 
     <Button
-        android:id="@+id/ButtonConnect"
+        android:id="@+id/LayeringConnect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/StatusTextBox"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="18dp"
         android:minWidth="100dp"
-        android:text="Connect" />
+        android:text="Connect (Layering)"
+        android:layout_above="@+id/StatusTextBox"
+        android:layout_alignLeft="@+id/labelStatusMsg"
+        android:layout_marginBottom="50dp" />
+
+    <Button
+        android:id="@+id/NoiseConnect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Connect (Noise)"
+        android:layout_alignTop="@+id/LayeringConnect"
+        android:layout_alignRight="@+id/labelStatusMsg" />
 
 </RelativeLayout>

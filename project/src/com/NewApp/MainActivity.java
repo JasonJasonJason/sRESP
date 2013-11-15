@@ -42,13 +42,9 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
 	private final int RESPIRATION_RATE = 0x101;
 	DistortionType distortionType = DistortionType.WhiteNoise;
 	MediaPlayer[] mediaPlayers;
-	MediaPlayer noiseSound;
 	MediaPlayer noise;
-	public Spinner spinnerTrack;
-	static int channelsReady = 0;
 	BioHarnessController bhController;
-	boolean started = false;
-
+	boolean onMainScreen = false;
 
 
     ListView musiclist;
@@ -58,7 +54,6 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
     MediaPlayer mMediaPlayer;
     private int currentSongNumber;
 
-
     private MediaController mMediaController;
     private boolean goToGraphFlag;
 
@@ -66,45 +61,23 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
     public void onCreate(Bundle savedInstanceState)
 	{
         super.onCreate(savedInstanceState);
-        Log.d("Application", "onCreate");   
-        
-        setContentView(R.layout.bh_connection);
-        
-        //create connect button and connect
-        final Button btnConnect = (Button) findViewById(R.id.ButtonConnect);
-        if (btnConnect != null)
-        {
-        		btnConnect.setOnClickListener(new OnClickListener() 
-        		{
-        			public void onClick(View v)
-        			{
-                    btnConnect.setPressed(true);
-                    TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
-                    tv.setText("Connecting...");
+        Log.d("Application", "onCreate");
 
-                    BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-                    if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
-                        initMainScreen();
-                    }
-                    else{
-                        initBioHarnessConnection();
-                    }
-        			}
-        		});
-        	}
-	        //Sending a message to android that we are going to initiate a pairing request
-	        IntentFilter filter = new IntentFilter("android.bluetooth.device.action.PAIRING_REQUEST");
-	        //Registering a new BTBroadcast receiver from the Main Activity context with pairing request event
-	        this.getApplicationContext().registerReceiver(new BTBroadcastReceiver(), filter);
-	        //Registering the BTBondReceiver in the application that the status of the receiver has changed to Paired
-	        IntentFilter filter2 = new IntentFilter("android.bluetooth.device.action.BOND_STATE_CHANGED");
-	        this.getApplicationContext().registerReceiver(new BTBondReceiver(), filter2);
-	        
-	       	//Obtaining the handle to act on the CONNECT button
-	        TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
-			String ErrorText  = "Ready to connect";
-			tv.setText(ErrorText);
-		}
+        //Sending a message to android that we are going to initiate a pairing request
+        IntentFilter filter = new IntentFilter("android.bluetooth.device.action.PAIRING_REQUEST");
+        //Registering a new BTBroadcast receiver from the Main Activity context with pairing request event
+        this.getApplicationContext().registerReceiver(new BTBroadcastReceiver(), filter);
+        //Registering the BTBondReceiver in the application that the status of the receiver has changed to Paired
+        IntentFilter filter2 = new IntentFilter("android.bluetooth.device.action.BOND_STATE_CHANGED");
+        this.getApplicationContext().registerReceiver(new BTBondReceiver(), filter2);
+        
+        goToConnectScreen();
+
+        //Obtaining the handle to act on the CONNECT button
+        TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
+        String ErrorText  = "Ready to connect";
+        tv.setText(ErrorText);
+	}
 
         
        
@@ -131,7 +104,7 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
     public void onResume(){
         super.onResume();
 
-        if(!started)
+        if(!onMainScreen)
             return;
         Log.d("Application", "onResume called");
 
@@ -141,11 +114,81 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
             noiseResume();
     }
 
+    @Override
+    public void onBackPressed() {
 
-    private void initMainScreen(){
+        if(onMainScreen)
+            goToConnectScreen();
+        else{
+            super.onBackPressed();
+        }
+    }
 
-        setContentView(R.layout.main_menu);
-        
+    private void goToConnectScreen(){
+
+        if(onMainScreen && distortionType == DistortionType.WhiteNoise)
+            noisePause();
+        if(onMainScreen && distortionType == DistortionType.Layering)
+            layeringPause();
+
+        onMainScreen = false;
+        setContentView(R.layout.bh_connection);
+
+        //create connect button and connect
+        final Button btnConnect = (Button) findViewById(R.id.LayeringConnect);
+        if (btnConnect != null)
+        {
+            btnConnect.setOnClickListener(new buttonListener(DistortionType.Layering, btnConnect));
+        }
+        final Button btnNoise = (Button) findViewById(R.id.NoiseConnect);
+        if (btnNoise != null)
+        {
+            btnNoise.setOnClickListener(new buttonListener(DistortionType.WhiteNoise, btnNoise));
+        }
+    }
+
+
+    class buttonListener implements OnClickListener {
+
+        public DistortionType newDistortionType;
+        public Button btn;
+
+        public buttonListener(DistortionType constructDistortion, Button btnConnect) {
+            newDistortionType = constructDistortion;
+            btn = btnConnect;
+        }
+
+        public void onClick(View v)
+        {
+            btn.setPressed(true);
+            TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
+            tv.setText("Connecting...");
+
+            BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+            if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+                initMainScreen(newDistortionType);
+            }
+            else{
+                initBioHarnessConnection(newDistortionType);
+            }
+        }
+    }
+
+
+    private void initMainScreen(DistortionType newDistortionType){
+
+        distortionType = newDistortionType;
+
+        if(distortionType == DistortionType.WhiteNoise)
+            initNoiseMainScreen();
+        if(distortionType == DistortionType.Layering)
+            initLayeringMainScreen();
+    }
+
+    private void initNoiseMainScreen()
+    {
+        setContentView(R.layout.main_menu_layering);
+
         EditText textBox = (EditText)findViewById(R.id.labelRespRate);
         textBox.setGravity(Gravity.CENTER);
         mMediaPlayer = new MediaPlayer();
@@ -154,16 +197,37 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
 
         Thread t = new Thread() {
             public void run() {
-            //spinnerTrack = (Spinner)findViewById(R.id.spinner1);
-            layeringInit();
-            noiseInit();
+                noiseInit();
 
-            initManualInputBox();
+                initManualInputBox();
 
-            //Initializing BioHarnessController
-            bhController = new BioHarnessController();
+                //Initializing BioHarnessController
+                bhController = new BioHarnessController();
 
-            started = true;
+                onMainScreen = true;
+            }
+        };
+        t.start();
+    }
+
+    private void initLayeringMainScreen()
+    {
+        setContentView(R.layout.main_menu_noise);
+
+        EditText textBox = (EditText)findViewById(R.id.labelRespRate);
+        textBox.setGravity(Gravity.CENTER);
+
+        Thread t = new Thread() {
+            public void run() {
+
+                layeringInit();
+
+                initManualInputBox();
+
+                //Initializing BioHarnessController
+                bhController = new BioHarnessController();
+
+                onMainScreen = true;
             }
         };
         t.start();
@@ -268,7 +332,10 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        mMediaController.show();
+        if(distortionType == DistortionType.WhiteNoise)
+        {
+            mMediaController.show();
+        }
         return false;
     }
 
@@ -341,7 +408,7 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
     }
 
 
-    private void initBioHarnessConnection(){
+    private void initBioHarnessConnection(DistortionType newDistortionType){
 
         String BhMacID = "00:07:80:9D:8A:E8";
         adapter = BluetoothAdapter.getDefaultAdapter();
@@ -375,7 +442,7 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
             _bt.start();
             TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
             tv.setText("Connected to BioHarness "+DeviceName);
-            initMainScreen();
+            initMainScreen(newDistortionType);
         }
         else
         {
@@ -464,7 +531,7 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
     
     private void layeringInit(){
 	
-		/*mediaPlayers = new MediaPlayer[12];
+		mediaPlayers = new MediaPlayer[12];
 		mediaPlayers[0] = initMediaPlayer(R.raw.kick_1);
 		mediaPlayers[1] = initMediaPlayer(R.raw.snare_2);
 		mediaPlayers[2] = initMediaPlayer(R.raw.overheads_3);
@@ -478,16 +545,21 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
 		mediaPlayers[10] = initMediaPlayer(R.raw.guitar_7);
 		mediaPlayers[11] = initMediaPlayer(R.raw.guitar_8);
 		
-		replaySongs(); 
+		replaySongs();
+
+        for(int i=0; i<mediaPlayers.length; i++)
+        {
+            mediaPlayers[i].seekTo(0);
+        }
 		
-		mediaPlayers[0].setOnCompletionListener(new OnCompletionListener(){
+		/*mediaPlayers[0].setOnCompletionListener(new OnCompletionListener(){
 			@Override
 			public void onCompletion(MediaPlayer arg0) { 
 				replaySongs();
 			}
-		});
+		});*/
 		
-		playChannels( channelArrayForRelaxLevel(4) );*/
+		playChannels( channelArrayForRelaxLevel(4) );
     }
     
     private void noiseInit(){
@@ -571,10 +643,7 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
     private void adjustAudio()
     {
         Log.d("Audio", "Adjusting audio");
-        if(noise.isPlaying())
-            Log.d("Audio", "noise is playing");
-        else
-            Log.d("Audio", "noise is NOT playing");
+
         int respirationRate = (int) Math.floor(bhController.getRespirationRate());
         if(distortionType == DistortionType.Layering)
             adjustLayeringAudio(respirationRate);
@@ -583,7 +652,8 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
     }
     
     private void adjustLayeringAudio(int respirationRate){
-    	
+
+        Log.d("Audio", "Adjusting layered aduio");
         switch(respirationRate)
 		{
 			case 0:

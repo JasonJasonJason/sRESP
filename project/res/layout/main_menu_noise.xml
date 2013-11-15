@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bg10">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="60">
+
+        <ListView
+            android:id="@+id/PhoneMusicList"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:drawSelectorOnTop="true"
+            android:descendantFocusability="blocksDescendants"/>
+
+    </LinearLayout>
+
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="40">
+
+        <TextView
+            android:id="@+id/RespirationRate"
+            android:layout_width="fill_parent"
+            android:layout_height="30dp"
+            android:textSize="18sp"
+            android:gravity="center"
+            android:text="Current Respiration Rate"/>
+
+        <EditText
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:ems="10"
+            android:id="@+id/labelRespRate"
+            android:text="0"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal" />
+
+
+        <Button
+            android:id="@+id/button1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="8dp"
+            android:onClick="goToGraph"
+            android:text="Respiration Signal Graph"
+            android:layout_gravity="center_horizontal" />
+
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="100dp"
+            android:id="@+id/audioView"
+            android:layout_marginTop="22dp"
+            android:drawSelectorOnTop="false"
+            android:background="#222222">
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
