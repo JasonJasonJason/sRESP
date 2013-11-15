@@ -35,16 +35,26 @@
         android:layout_marginLeft="16dp"
         android:orientation="horizontal" >
         
-    <RadioButton
-        android:id="@+id/radio_layering"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/radioGroup1"
-        android:checked="true"
-        android:onClick="onRadioButtonClicked"
-        android:layout_marginTop="20dp"
-        android:text="Layering" />
+        <RadioButton
+            android:id="@+id/radio_layering"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/radioGroup1"
+            android:checked="true"
+            android:onClick="onRadioButtonClicked"
+            android:layout_marginTop="20dp"
+            android:text="Layering" />
+
+        <RadioButton
+            android:id="@+id/radio_noise"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/radioGroup1"
+            android:layout_toRightOf="@+id/toggleButton1"
+            android:onClick="onRadioButtonClicked"
+            android:text="Noise"
+            android:checked="false" />
         
     </RadioGroup>
 
@@ -57,15 +67,6 @@
         android:layout_marginBottom="43dp"
         android:onClick="goToGraph"
         android:text="Respiration Signal Graph" />
-
-    <RadioButton
-        android:id="@+id/radio_noise"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/radioGroup1"
-        android:layout_toRightOf="@+id/toggleButton1"
-        android:onClick="onRadioButtonClicked"
-        android:text="Noise" />
 
     <TextView
         android:id="@+id/TextView01"

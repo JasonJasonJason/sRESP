@@ -118,20 +118,21 @@ public class MainActivity extends Activity {
     private void initMainScreen(){
 
         setContentView(R.layout.main_menu);
-
+        
+        EditText textBox = (EditText)findViewById(R.id.labelRespRate);
+        textBox.setGravity(Gravity.CENTER);
+        
         Thread t = new Thread() {
             public void run() {
                 //spinnerTrack = (Spinner)findViewById(R.id.spinner1);
                 layeringInit();
                 noiseInit();
 
-                //initManualInputBox();
+                initManualInputBox();
 
                 //Initializing BioHarnessController
                 bhController = new BioHarnessController();
 
-                EditText t = (EditText)findViewById(R.id.labelRespRate);
-                t.setGravity(Gravity.CENTER);
                 started = true;
             }
         };
