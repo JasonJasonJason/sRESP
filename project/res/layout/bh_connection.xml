@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg10" >
+    android:background="@drawable/bg" >
 
     <EditText
         android:id="@+id/labelStatusMsg"
@@ -16,7 +16,8 @@
         android:ems="10"
         android:focusable="false"
         android:focusableInTouchMode="false"
-        android:text="Respiration Signal Graph" >
+        android:text="Ready to connect"
+        android:gravity="center">
 
         <requestFocus />
     </EditText>
@@ -26,9 +27,11 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/labelStatusMsg"
-        android:layout_alignParentLeft="true"
-        android:text="     BioHarness Connection Status"
-        android:textSize="20sp" />
+        android:textAlignment="center"
+        android:text="BioHarness Connection Status"
+        android:textSize="20sp"
+        android:textColor="#222222"
+        android:gravity="center"/>
 
     <Button
         android:id="@+id/LayeringConnect"

@@ -3,13 +3,10 @@ package com.NewApp;
 
 import android.app.Activity;
 import android.database.Cursor;
-import android.graphics.PixelFormat;
+import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.Spinner;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -33,7 +30,7 @@ import java.util.Set;
 import zephyr.android.BioHarnessBT.*;
 
 
-public class MainActivity extends Activity implements MediaController.MediaPlayerControl {
+public class MainActivity extends Activity{
     /** Called when the activity is first created. */
 	BluetoothAdapter adapter = null;
 	BTClient _bt; 
@@ -42,10 +39,10 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
 	private final int RESPIRATION_RATE = 0x101;
 	DistortionType distortionType = DistortionType.WhiteNoise;
 	MediaPlayer[] mediaPlayers;
+    boolean[] currentlyPlaying;
 	MediaPlayer noise;
 	BioHarnessController bhController;
 	boolean onMainScreen = false;
-
 
     ListView musiclist;
     Cursor musiccursor;
@@ -54,8 +51,8 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
     MediaPlayer mMediaPlayer;
     private int currentSongNumber;
 
-    private MediaController mMediaController;
     private boolean goToGraphFlag;
+    private MediaObserver mediaObserver;
 
 
     public void onCreate(Bundle savedInstanceState)
@@ -78,9 +75,6 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
         String ErrorText  = "Ready to connect";
         tv.setText(ErrorText);
 	}
-
-        
-       
     
     @Override
     public void onPause(){ 
@@ -95,7 +89,7 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
         Log.d("Application", "onPause called");
 
         if(distortionType == DistortionType.Layering)
-            layeringPause();
+            layeringPause(false);
         else if (distortionType == DistortionType.WhiteNoise)
             noisePause();
     }
@@ -129,7 +123,7 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
         if(onMainScreen && distortionType == DistortionType.WhiteNoise)
             noisePause();
         if(onMainScreen && distortionType == DistortionType.Layering)
-            layeringPause();
+            layeringPause(true);
 
         onMainScreen = false;
         setContentView(R.layout.bh_connection);
@@ -217,12 +211,42 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
         EditText textBox = (EditText)findViewById(R.id.labelRespRate);
         textBox.setGravity(Gravity.CENTER);
 
+        findViewById(R.id.progressBar).setVisibility(View.GONE);
+        findViewById(R.id.buttonPrevious).setVisibility(View.GONE);
+        findViewById(R.id.buttonNext).setVisibility(View.GONE);
+
         Thread t = new Thread() {
             public void run() {
 
                 layeringInit();
 
                 initManualInputBox();
+
+
+                ((Button) findViewById(R.id.buttonPlayPause)).setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Button playPauseButton = (Button) findViewById(R.id.buttonPlayPause);
+
+                        boolean anyPlaying = false;
+                        for(int i=0; i<currentlyPlaying.length; i++)
+                            if(currentlyPlaying[i])
+                                anyPlaying = true;
+
+                        if(anyPlaying)
+                        {
+                            playPauseButton.setText("Play");
+                            layeringPause(true);
+                        }
+                        else
+                        {
+                            playPauseButton.setText("Pause");
+                            layeringResume();
+                        }
+
+
+                    }
+                });
 
                 //Initializing BioHarnessController
                 bhController = new BioHarnessController();
@@ -239,12 +263,14 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
         System.gc();
         String[] proj = { MediaStore.Audio.Media._ID,
                 MediaStore.Audio.Media.DATA,
-                MediaStore.Audio.Media.DISPLAY_NAME,
-                MediaStore.Video.Media.SIZE };
+                MediaStore.Audio.Media.TITLE,
+                MediaStore.Audio.Media.ARTIST};
         musiccursor = managedQuery(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 proj, null, null, null);
         count = musiccursor.getCount();
         musiclist = (ListView) findViewById(R.id.PhoneMusicList);
+        //ArrayAdapter musicAdapter = new ArrayAdapter(getApplicationContext(), R.layout.line_item);
+        //musiclist.setAdapter(musicAdapter);
         musiclist.setAdapter(new MusicAdapter(getApplicationContext()));
         musiclist.setOnItemClickListener(musicgridlistener);
         mMediaPlayer.setOnCompletionListener(new OnCompletionListener() {
@@ -257,88 +283,10 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
     }
 
     private ListView.OnItemClickListener musicgridlistener = new ListView.OnItemClickListener() {
-        public void onItemClick(AdapterView parent, View v, int position,
-                                long id) {
-            mMediaController.setFocusable(false);
-            mMediaController.setFocusableInTouchMode(false);
-            mMediaController.show();
-            musiclist.setFocusable(true);
+        public void onItemClick(AdapterView parent, View v, int position, long id) {
             playSong(position);
-
         }
     };
-
-    @Override
-    public boolean canPause() {
-        return true;
-    }
-
-    @Override
-    public boolean canSeekBackward() {
-        return false;
-    }
-
-    @Override
-    public boolean canSeekForward() {
-        return false;
-    }
-
-    @Override
-    public int getAudioSessionId() {
-        return 0;
-    }
-
-    @Override
-    public int getBufferPercentage() {
-        int percentage = (mMediaPlayer.getCurrentPosition() * 100) / mMediaPlayer.getDuration();
-        return percentage;
-    }
-
-    @Override
-    public int getCurrentPosition() {
-        return mMediaPlayer.getCurrentPosition();
-    }
-
-    @Override
-    public int getDuration() {
-        return mMediaPlayer.getDuration();
-    }
-
-    @Override
-    public boolean isPlaying() {
-        return mMediaPlayer.isPlaying();
-    }
-
-    @Override
-    public void pause() {
-        if(mMediaPlayer.isPlaying())
-            mMediaPlayer.pause();
-
-        if(noise.isPlaying())
-            noise.pause();
-    }
-
-    @Override
-    public void seekTo(int pos) {
-        mMediaPlayer.seekTo(pos);
-    }
-
-    @Override
-    public void start() {
-        mMediaPlayer.start();
-        noise.start();
-        noise.setLooping(true);
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        if(distortionType == DistortionType.WhiteNoise)
-        {
-            mMediaController.show();
-        }
-        return false;
-    }
-
 
     public class MusicAdapter extends BaseAdapter {
         private Context mContext;
@@ -361,18 +309,21 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
 
         public View getView(int position, View convertView, ViewGroup parent) {
             System.gc();
-            TextView tv = new TextView(mContext.getApplicationContext());
-            String id = null;
+
+            LinearLayout layoutShell = (LinearLayout)getLayoutInflater().inflate(R.layout.line_item, null);
+            TextView titleTextView = (TextView)layoutShell.findViewById(R.id.SongTitle);
+            TextView artistTextView = (TextView)layoutShell.findViewById(R.id.Artist);
+
             if (convertView == null) {
                 musiccursor.moveToPosition(position);
-                music_column_index = musiccursor
-                        .getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME);
-                id = musiccursor.getString(music_column_index);
-                Log.d("Display name", "Display name: " + id);
-                tv.setText(id);
-            } else
-                tv = (TextView) convertView;
-            return tv;
+                String titleString = " " + musiccursor.getString(musiccursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
+                String artistString = "    " + musiccursor.getString(musiccursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
+                titleTextView.setText(titleString);
+                artistTextView.setText(artistString);
+            } else {
+                return (LinearLayout) convertView;
+            }
+            return layoutShell;
         }
     }
 
@@ -380,16 +331,17 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
     {
         System.gc();
         currentSongNumber = songNumber;
-        if(currentSongNumber == musiccursor.getCount())
+        if(currentSongNumber >= count)
             currentSongNumber = 0;
+        if(currentSongNumber < 0)
+            currentSongNumber = count-1;
 
-        music_column_index = musiccursor
-                .getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
-        musiccursor.moveToPosition(songNumber);
+        music_column_index = musiccursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
+        musiccursor.moveToPosition(currentSongNumber);
         String filename = musiccursor.getString(music_column_index);
 
         try {
-            if (mMediaPlayer.isPlaying())
+            if(mMediaPlayer.isPlaying())
                 mMediaPlayer.stop();
             mMediaPlayer.reset();
             mMediaPlayer.setDataSource(filename);
@@ -401,10 +353,74 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
     }
 
     private void initMediaController(){
-        mMediaController = new MediaController(this);
-        mMediaController.setMediaPlayer(this);
-        mMediaController.setAnchorView(findViewById(R.id.audioView));
-        mMediaController.show(10);
+
+        final Button playPauseButton = (Button)findViewById(R.id.buttonPlayPause);
+        Button previousButton = (Button)findViewById(R.id.buttonPrevious);
+        Button nextButton = (Button)findViewById(R.id.buttonNext);
+        SeekBar progressBar = (SeekBar) findViewById(R.id.progressBar);
+
+        playPauseButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(distortionType == DistortionType.WhiteNoise)
+                {
+                    if(noise.isPlaying())
+                    {
+                        noisePause();
+                        playPauseButton.setText("Play");
+                    }
+                    else
+                    {
+                        noiseResume();
+                        playPauseButton.setText("Pause");
+                    }
+                }
+            }
+        });
+        nextButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                playSong(currentSongNumber+1);
+            }
+        });
+        previousButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                playSong(currentSongNumber-1);
+            }
+        });
+
+        mediaObserver = new MediaObserver(progressBar);
+        new Thread(mediaObserver).start();
+    }
+
+    private class MediaObserver implements Runnable {
+        private boolean stop = false;
+        SeekBar progressBar;
+
+        public MediaObserver(SeekBar newProgressBar) {
+            progressBar = newProgressBar;
+        }
+
+        public void stop() {
+            stop = true;
+        }
+
+        @Override
+        public void run() {
+
+            while (!stop) {
+                if(progressBar != null && mMediaPlayer != null && mMediaPlayer.isPlaying()){
+                    float progress = (float)mMediaPlayer.getCurrentPosition() / (float)mMediaPlayer.getDuration() * 100;
+                    progressBar.setProgress((int)progress);
+                }
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    Log.e("Error", "Error in progress bar updating");
+                }
+            }
+        }
     }
 
 
@@ -427,7 +443,6 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
                 }
             }
         }
-        //BhMacID = btDevice.getAddress();
         BluetoothDevice Device = adapter.getRemoteDevice(BhMacID);
         String DeviceName = Device.getName();
         _bt = new BTClient(adapter, BhMacID);
@@ -451,38 +466,17 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
         }
     }
     
-    public void onRadioButtonClicked(View view) {
-	    // Is the button now checked?
-	    boolean checked = ((RadioButton) view).isChecked();
-	    
-	    // Check which radio button was clicked
-	    /*switch(view.getId()) {
-	    		case R.id.radio_layering:
-	            if (checked)
-	            {
-	            		distortionType = DistortionType.Layering;
-	            		noisePause();
-	            		adjustAudio();
-	            }
-	            break;
-	    		case R.id.radio_noise:
-	            if (checked)
-	            {
-	            		distortionType = DistortionType.WhiteNoise;
-	            		layeringPause();
-	            		adjustAudio();
-	            }
-	            break;
-	    }*/
-	}
     
-    
-    private void layeringPause(){
+    private void layeringPause(boolean immediate){
     		
         for(int i=0; i<mediaPlayers.length; i++)
         {
-            stopChannel(i);
+            if(currentlyPlaying[i])
+                stopChannel(i, immediate);
         }
+
+        if(mediaObserver != null)
+            mediaObserver.stop();
     }
     
     private void noisePause(){
@@ -492,11 +486,16 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
     }
     
     private void layeringResume(){
+
         adjustAudio();
+        mediaObserver = new MediaObserver((SeekBar)findViewById(R.id.progressBar));
+        new Thread(mediaObserver).start();
     }
 
     private void noiseResume(){
         adjustAudio();
+        noise.start();
+        mMediaPlayer.start();
     }
     
     
@@ -530,36 +529,26 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
     
     
     private void layeringInit(){
-	
-		mediaPlayers = new MediaPlayer[12];
-		mediaPlayers[0] = initMediaPlayer(R.raw.kick_1);
-		mediaPlayers[1] = initMediaPlayer(R.raw.snare_2);
-		mediaPlayers[2] = initMediaPlayer(R.raw.overheads_3);
-		mediaPlayers[3] = initMediaPlayer(R.raw.tom_4);
-		mediaPlayers[4] = initMediaPlayer(R.raw.tom_5);
-		mediaPlayers[5] = initMediaPlayer(R.raw.bass_6);
-		mediaPlayers[6] = initMediaPlayer(R.raw.cello_11);
-		mediaPlayers[7] = initMediaPlayer(R.raw.cello_12);
-		mediaPlayers[8] = initMediaPlayer(R.raw.mandolin_9);
-		mediaPlayers[9] = initMediaPlayer(R.raw.mandolin_10);
-		mediaPlayers[10] = initMediaPlayer(R.raw.guitar_7);
-		mediaPlayers[11] = initMediaPlayer(R.raw.guitar_8);
-		
-		replaySongs();
+
+		mediaPlayers = new MediaPlayer[6];
+		mediaPlayers[0] = initMediaPlayer(R.raw.track1);
+		mediaPlayers[1] = initMediaPlayer(R.raw.track2);
+		mediaPlayers[2] = initMediaPlayer(R.raw.track3);
+		mediaPlayers[3] = initMediaPlayer(R.raw.track4);
+		mediaPlayers[4] = initMediaPlayer(R.raw.track5);
+		mediaPlayers[5] = initMediaPlayer(R.raw.track6);
+
+        currentlyPlaying = new boolean[mediaPlayers.length];
+        for(int i=0; i<currentlyPlaying.length; i++)
+            currentlyPlaying[i] = false;
 
         for(int i=0; i<mediaPlayers.length; i++)
         {
             mediaPlayers[i].seekTo(0);
         }
-		
-		/*mediaPlayers[0].setOnCompletionListener(new OnCompletionListener(){
-			@Override
-			public void onCompletion(MediaPlayer arg0) { 
-				replaySongs();
-			}
-		});*/
-		
-		playChannels( channelArrayForRelaxLevel(4) );
+        startSongs();
+
+		//playChannels( channelArrayForRelaxLevel(6) );
     }
     
     private void noiseInit(){
@@ -601,17 +590,19 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
 		return mediaPlayer;
     }
     
-    private void startChannel(int channel)
+    private void startChannel(int channel, boolean immediate)
     {
         Log.d("Audio", "Starting audio channel #" + channel);
-        mediaPlayers[channel].setVolume(1,1);
+        fadeChannel(1, mediaPlayers[channel], immediate);
+        currentlyPlaying[channel] = true;
     }
     
     
-    private void stopChannel(int channel)
+    private void stopChannel(int channel, boolean immediate)
     {
         Log.d("Audio", "Stopping audio channel #" + channel);
-        mediaPlayers[channel].setVolume(0,0);
+        fadeChannel(0, mediaPlayers[channel], immediate);
+        currentlyPlaying[channel] = false;
     }
     
     
@@ -620,9 +611,16 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
         for(int channel=0; channel<mediaPlayers.length; channel++)
         {
             if(arrayContains(channels, channel))
-                startChannel(channel);
+            {
+                if(!currentlyPlaying[channel])
+                    startChannel(channel, false);
+            }
             else
-                stopChannel(channel);
+            {
+                if(currentlyPlaying[channel])
+                    stopChannel(channel, false);
+                currentlyPlaying[channel] = false;
+            }
         }
     }
     
@@ -681,13 +679,13 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
     {
         switch(level)
         {
-            case 0: return new int[] {0,1};
-            case 1: return new int[] {0,1,2,3};
-            case 2: return new int[] {0,1,2,3,4,5};
-            case 3: return new int[] {0,1,2,3,4,5,6};
-            case 4: return new int[] {0,1,2,3,4,5,6,7};
-            case 5: return new int[] {0,1,2,3,4,5,6,7,8,9};
-            case 6: return new int[] {0,1,2,3,4,5,6,7,8,9,10,11};
+            case 0: return new int[] {0};
+            case 1: return new int[] {1};
+            case 2: return new int[] {2};
+            case 3: return new int[] {3};
+            case 4: return new int[] {4};
+            case 5: return new int[] {5};
+            case 6: return new int[] {5};
         }
         return new int[] {};
     }
@@ -714,6 +712,66 @@ public class MainActivity extends Activity implements MediaController.MediaPlaye
             case 15: setVolume(0.20f);break;
 			default: setVolume(0.23f); break;
 		}
+    }
+
+    public void fadeChannel(float volume, MediaPlayer mp, boolean immediate){
+
+        if(immediate){
+            mp.setVolume(volume, volume);
+        }
+        else{
+            FadeOutMusic fadeOut = (FadeOutMusic)new FadeOutMusic(volume, mp).execute( );
+        }
+    }
+
+    //
+    //  background processing ... fade out music stream
+    //
+    public class FadeOutMusic extends AsyncTask<String,Integer,String> {
+
+        private float targetVolume;
+        private MediaPlayer mediaPlayer;
+
+        public FadeOutMusic(float v, MediaPlayer mp) {
+            targetVolume = v;
+            mediaPlayer = mp;
+        }
+
+        @Override
+        protected String doInBackground(String... args) {
+
+            float currentVolume = targetVolume == 1 ? 0 : 1;
+            float stepAmount = targetVolume == 1 ? 0.02f : -0.02f;
+
+            for(int i=0; i<50; i++){
+
+                currentVolume += stepAmount;
+
+                if(mediaPlayer != null){
+                    mediaPlayer.setVolume(currentVolume, currentVolume);
+                }
+                try {
+                    Thread.sleep(25);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            return "dummy";
+        }
+
+        @Override
+        protected void onPostExecute( String dummy ) {
+            if(mediaPlayer != null){
+                mediaPlayer.setVolume(targetVolume, targetVolume);
+            }
+        }
+
+        @Override
+        public void onCancelled() {
+            if(mediaPlayer != null){
+                mediaPlayer.setVolume(targetVolume, targetVolume);
+            }
+        }
     }
     
     

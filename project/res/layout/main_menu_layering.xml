@@ -4,20 +4,19 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
-    android:background="@drawable/bg10">
+    android:background="@drawable/bg">
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="0dip"
-        android:layout_weight="60">
+        android:layout_weight="40">
 
         <ListView
             android:id="@+id/PhoneMusicList"
             android:layout_height="wrap_content"
             android:layout_width="fill_parent"
-            android:drawSelectorOnTop="true"
-            android:descendantFocusability="blocksDescendants"/>
+            android:cacheColorHint="#00000000"/>
 
     </LinearLayout>
 
@@ -26,7 +25,7 @@
         android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="0dip"
-        android:layout_weight="40">
+        android:layout_weight="60">
 
         <TextView
             android:id="@+id/RespirationRate"
@@ -34,7 +33,8 @@
             android:layout_height="30dp"
             android:textSize="18sp"
             android:gravity="center"
-            android:text="Current Respiration Rate"/>
+            android:text="Current Respiration Rate"
+            android:textColor="#222222"/>
 
         <EditText
             android:layout_width="60dp"
@@ -60,13 +60,46 @@
 
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:orientation="vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="100dp"
-            android:id="@+id/audioView"
-            android:layout_marginTop="22dp"
-            android:drawSelectorOnTop="false"
-            android:background="#222222">
+            android:orientation="vertical" android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="40dp"
+            android:background="#000000">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Previous"
+                    android:id="@+id/buttonPrevious"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_weight="33"/>
+
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Pause"
+                    android:id="@+id/buttonPlayPause"
+                    android:layout_weight="33"/>
+
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Next"
+                    android:id="@+id/buttonNext"
+                    android:layout_weight="33"/>
+
+            </LinearLayout>
+
+            <SeekBar
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/progressBar"
+                android:layout_gravity="center_horizontal" />
+
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
