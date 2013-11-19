@@ -67,7 +67,7 @@ public class MainActivity extends Activity{
         //Registering the BTBondReceiver in the application that the status of the receiver has changed to Paired
         IntentFilter filter2 = new IntentFilter("android.bluetooth.device.action.BOND_STATE_CHANGED");
         this.getApplicationContext().registerReceiver(new BTBondReceiver(), filter2);
-        
+
         goToConnectScreen();
 
         //Obtaining the handle to act on the CONNECT button
@@ -454,7 +454,6 @@ public class MainActivity extends Activity{
 
         if(_bt.IsConnected())
         {
-            Log.d("Bluetooth", "Blootooth is connected. Starting blootooth.");
             _bt.start();
 
             TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
@@ -463,7 +462,6 @@ public class MainActivity extends Activity{
         }
         else
         {
-            Log.d("Bluetooth", "Could not connect!");
             TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
             tv.setText("Unable to connect!");
         }

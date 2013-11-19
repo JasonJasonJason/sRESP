@@ -41,7 +41,6 @@
   <component name="AndroidLogFilters">
     <option name="TOOL_WINDOW_CUSTOM_FILTER" value="Bluetooth" />
     <option name="TOOL_WINDOW_LOG_LEVEL" value="DEBUG" />
-    <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="Process id: 2250" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ab90039f-f7f4-4faf-9698-684b4fb2a345" name="Default" comment="" />
@@ -110,58 +109,37 @@
       <file leaf-file-name="MainActivity.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/com/NewApp/MainActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="456" column="78" selection-start="14901" selection-end="14901" vertical-scroll-proportion="0.6635731" vertical-offset="5864" max-vertical-offset="12360">
+            <state line="127" column="29" selection-start="3846" selection-end="3846" vertical-scroll-proportion="0.5185185" vertical-offset="1305" max-vertical-offset="12690">
               <folding>
-                <element signature="e#8725#8974#0" expanded="true" />
-                <element signature="e#8963#8964#0" expanded="true" />
+                <element signature="e#5893#6181#0" expanded="true" />
+                <element signature="e#6170#6171#0" expanded="true" />
+                <element signature="e#6641#7877#0" expanded="true" />
+                <element signature="e#6843#7701#0" expanded="true" />
+                <element signature="e#7682#7683#0" expanded="true" />
+                <element signature="e#7866#7867#0" expanded="true" />
+                <element signature="e#8717#8966#0" expanded="true" />
+                <element signature="e#8955#8956#0" expanded="true" />
+                <element signature="e#9037#9206#0" expanded="true" />
+                <element signature="e#9199#9200#0" expanded="true" />
+                <element signature="e#9404#9405#0" expanded="true" />
+                <element signature="e#9440#9441#0" expanded="true" />
+                <element signature="e#11788#12349#0" expanded="true" />
+                <element signature="e#12338#12339#0" expanded="true" />
+                <element signature="e#12390#12551#0" expanded="true" />
+                <element signature="e#12540#12541#0" expanded="true" />
+                <element signature="e#12596#12757#0" expanded="true" />
+                <element signature="e#12746#12747#0" expanded="true" />
+                <element signature="e#26061#26773#0" expanded="true" />
+                <element signature="e#26765#26766#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="line_item.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/res/layout/line_item.xml">
-          <provider editor-type-id="android-designer">
-            <state />
-          </provider>
+      <file leaf-file-name="NewConnectedListener.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/NewApp/NewConnectedListener.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="19" column="34" selection-start="624" selection-end="624" vertical-scroll-proportion="0.0" vertical-offset="285" max-vertical-offset="435">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="main_menu_layering.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/res/layout/main_menu_layering.xml">
-          <provider editor-type-id="android-designer">
-            <state />
-          </provider>
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="37" column="0" selection-start="1226" selection-end="1226" vertical-scroll-proportion="0.0" vertical-offset="555" max-vertical-offset="1650">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="main_menu_noise.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/res/layout/main_menu_noise.xml">
-          <provider editor-type-id="android-designer">
-            <state />
-          </provider>
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="27" column="34" selection-start="904" selection-end="904" vertical-scroll-proportion="0.0" vertical-offset="405" max-vertical-offset="1650">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="bh_connection.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/res/layout/bh_connection.xml">
-          <provider editor-type-id="android-designer">
-            <state />
-          </provider>
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="9" column="44" selection-start="372" selection-end="372" vertical-scroll-proportion="0.0" vertical-offset="135" max-vertical-offset="885">
+            <state line="14" column="31" selection-start="357" selection-end="357" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2265">
               <folding />
             </state>
           </provider>
@@ -283,6 +261,13 @@
     <property name="OverrideImplement.overriding.sorted" value="false" />
     <property name="ANDROID_EXTENDED_DEVICE_CHOOSER_SERIALS" value="HT148HL04254" />
     <property name="ANDROID_EXTENDED_DEVICE_CHOOSER_AVD" value="Android2.2" />
+    <property name="GenerateAntBuildDialog.generateSingleFile" value="false" />
+    <property name="GenerateAntBuildDialog.enableUiFormCompile" value="true" />
+    <property name="GenerateAntBuildDialog.forceTargetJdk" value="true" />
+    <property name="GenerateAntBuildDialog.backupFiles" value="true" />
+    <property name="GenerateAntBuildDialog.inclineRuntiemClasspath" value="false" />
+    <property name="GenerateAntBuildDialog.generateIdeaHomeProperty" value="false" />
+    <property name="GenerateAntBuildDialog.outputFileNameProperty" value="sresp" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -538,20 +523,6 @@
         <state line="12" column="17" selection-start="544" selection-end="544" vertical-scroll-proportion="0.5013928" vertical-offset="0" max-vertical-offset="359" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/NewApp/BioHarnessController.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="6" column="1" selection-start="74" selection-end="74" vertical-scroll-proportion="0.2506964" vertical-offset="0" max-vertical-offset="450">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/NewApp/NewConnectedListener.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="10" column="13" selection-start="216" selection-end="216" vertical-scroll-proportion="0.0" vertical-offset="45" max-vertical-offset="2265">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$APPLICATION_HOME_DIR$/sdk/platforms/android-19/android.jar!/android/media/MediaPlayer.class">
       <provider selected="true" editor-type-id="text-editor">
         <state line="82" column="16" selection-start="4315" selection-end="4315" vertical-scroll-proportion="0.33255813" vertical-offset="1072" max-vertical-offset="2805" />
@@ -592,62 +563,44 @@
         <state line="36" column="16" selection-start="1485" selection-end="1485" vertical-scroll-proportion="0.33255813" vertical-offset="382" max-vertical-offset="2010" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/res/layout/my_media_controller.xml">
-      <provider editor-type-id="android-designer">
-        <state />
-      </provider>
+    <entry file="file://$PROJECT_DIR$/src/com/NewApp/NewConnectedListener.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="0" selection-start="226" selection-end="226" vertical-scroll-proportion="0.26881722" vertical-offset="0" max-vertical-offset="705">
+        <state line="14" column="31" selection-start="357" selection-end="357" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2265">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/res/layout/line_item.xml">
-      <provider editor-type-id="android-designer">
-        <state />
-      </provider>
+    <entry file="jar://$APPLICATION_HOME_DIR$/sdk/platforms/android-19/android.jar!/android/view/View.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="34" selection-start="624" selection-end="624" vertical-scroll-proportion="0.0" vertical-offset="285" max-vertical-offset="435">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/res/layout/main_menu_layering.xml">
-      <provider editor-type-id="android-designer">
-        <state />
-      </provider>
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="37" column="0" selection-start="1226" selection-end="1226" vertical-scroll-proportion="0.0" vertical-offset="555" max-vertical-offset="1650">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/res/layout/main_menu_noise.xml">
-      <provider editor-type-id="android-designer">
-        <state />
-      </provider>
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="27" column="34" selection-start="904" selection-end="904" vertical-scroll-proportion="0.0" vertical-offset="405" max-vertical-offset="1650">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/res/layout/bh_connection.xml">
-      <provider editor-type-id="android-designer">
-        <state />
-      </provider>
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="9" column="44" selection-start="372" selection-end="372" vertical-scroll-proportion="0.0" vertical-offset="135" max-vertical-offset="885">
+        <state line="172" column="16" selection-start="9684" selection-end="9684" vertical-scroll-proportion="0.33178654" vertical-offset="2422" max-vertical-offset="17820">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/NewApp/MainActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="456" column="78" selection-start="14901" selection-end="14901" vertical-scroll-proportion="0.6635731" vertical-offset="5864" max-vertical-offset="12360">
+        <state line="127" column="29" selection-start="3846" selection-end="3846" vertical-scroll-proportion="0.5185185" vertical-offset="1305" max-vertical-offset="12690">
           <folding>
-            <element signature="e#8725#8974#0" expanded="true" />
-            <element signature="e#8963#8964#0" expanded="true" />
+            <element signature="e#5893#6181#0" expanded="true" />
+            <element signature="e#6170#6171#0" expanded="true" />
+            <element signature="e#6641#7877#0" expanded="true" />
+            <element signature="e#6843#7701#0" expanded="true" />
+            <element signature="e#7682#7683#0" expanded="true" />
+            <element signature="e#7866#7867#0" expanded="true" />
+            <element signature="e#8717#8966#0" expanded="true" />
+            <element signature="e#8955#8956#0" expanded="true" />
+            <element signature="e#9037#9206#0" expanded="true" />
+            <element signature="e#9199#9200#0" expanded="true" />
+            <element signature="e#9404#9405#0" expanded="true" />
+            <element signature="e#9440#9441#0" expanded="true" />
+            <element signature="e#11788#12349#0" expanded="true" />
+            <element signature="e#12338#12339#0" expanded="true" />
+            <element signature="e#12390#12551#0" expanded="true" />
+            <element signature="e#12540#12541#0" expanded="true" />
+            <element signature="e#12596#12757#0" expanded="true" />
+            <element signature="e#12746#12747#0" expanded="true" />
+            <element signature="e#26061#26773#0" expanded="true" />
+            <element signature="e#26765#26766#0" expanded="true" />
           </folding>
         </state>
       </provider>
