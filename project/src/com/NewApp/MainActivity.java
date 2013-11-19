@@ -120,10 +120,17 @@ public class MainActivity extends Activity{
 
     private void goToConnectScreen(){
 
+        if(_bt != null && onMainScreen)
+        {
+            //Close the communication with the device & throw an exception if failure
+            _bt.removeConnectedEventListener(_NConnListener);
+            _bt.Close();
+        }
         if(onMainScreen && distortionType == DistortionType.WhiteNoise)
             noisePause();
         if(onMainScreen && distortionType == DistortionType.Layering)
             layeringPause(true);
+
 
         onMainScreen = false;
         setContentView(R.layout.bh_connection);
@@ -692,6 +699,13 @@ public class MainActivity extends Activity{
     }
     
     private void adjustNoiseAudio(int respirationRate){
+
+        if(!mMediaPlayer.isPlaying())
+        {
+            setVolume(0);
+            return;
+        }
+
 
         switch(respirationRate)
 		{
