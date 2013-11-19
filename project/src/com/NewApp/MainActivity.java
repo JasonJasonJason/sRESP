@@ -449,18 +449,21 @@ public class MainActivity extends Activity{
         _NConnListener = new NewConnectedListener(Newhandler,Newhandler);
         _bt.addConnectedEventListener(_NConnListener);
 
-        TextView tv1 = (EditText)findViewById(R.id.labelRespRate);
-        tv1.setText("0.0");
+        //TextView tv1 = (EditText)findViewById(R.id.labelRespRate);
+        //tv1.setText("0.0");
 
         if(_bt.IsConnected())
         {
+            Log.d("Bluetooth", "Blootooth is connected. Starting blootooth.");
             _bt.start();
+
             TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
             tv.setText("Connected to BioHarness "+DeviceName);
             initMainScreen(newDistortionType);
         }
         else
         {
+            Log.d("Bluetooth", "Could not connect!");
             TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
             tv.setText("Unable to connect!");
         }
