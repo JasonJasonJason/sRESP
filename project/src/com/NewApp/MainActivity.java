@@ -67,7 +67,7 @@ public class MainActivity extends Activity{
         //Registering the BTBondReceiver in the application that the status of the receiver has changed to Paired
         IntentFilter filter2 = new IntentFilter("android.bluetooth.device.action.BOND_STATE_CHANGED");
         this.getApplicationContext().registerReceiver(new BTBondReceiver(), filter2);
-        
+
         goToConnectScreen();
 
         //Obtaining the handle to act on the CONNECT button
@@ -120,10 +120,17 @@ public class MainActivity extends Activity{
 
     private void goToConnectScreen(){
 
+        if(_bt != null && onMainScreen)
+        {
+            //Close the communication with the device & throw an exception if failure
+            _bt.removeConnectedEventListener(_NConnListener);
+            _bt.Close();
+        }
         if(onMainScreen && distortionType == DistortionType.WhiteNoise)
             noisePause();
         if(onMainScreen && distortionType == DistortionType.Layering)
             layeringPause(true);
+
 
         onMainScreen = false;
         setContentView(R.layout.bh_connection);
@@ -449,12 +456,13 @@ public class MainActivity extends Activity{
         _NConnListener = new NewConnectedListener(Newhandler,Newhandler);
         _bt.addConnectedEventListener(_NConnListener);
 
-        TextView tv1 = (EditText)findViewById(R.id.labelRespRate);
-        tv1.setText("0.0");
+        //TextView tv1 = (EditText)findViewById(R.id.labelRespRate);
+        //tv1.setText("0.0");
 
         if(_bt.IsConnected())
         {
             _bt.start();
+
             TextView tv = (TextView) findViewById(R.id.labelStatusMsg);
             tv.setText("Connected to BioHarness "+DeviceName);
             initMainScreen(newDistortionType);
@@ -691,6 +699,13 @@ public class MainActivity extends Activity{
     }
     
     private void adjustNoiseAudio(int respirationRate){
+
+        if(!mMediaPlayer.isPlaying())
+        {
+            setVolume(0);
+            return;
+        }
+
 
         switch(respirationRate)
 		{
